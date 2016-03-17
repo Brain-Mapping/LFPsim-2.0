@@ -1,0 +1,59 @@
+//Move_ele
+
+
+create dummy  
+objref place_Elec  
+objref MoveElec  
+
+MoveElec = new Shape(0)  // create it but don't map it to the screen yet
+//xopen("three_d_cor.hoc")
+//MoveElec.view(571.097, 572.916, 54.0667, 53.8575, 463, 88, 201.6, 200.82)
+
+
+proc drawelec() {
+	//access dummy
+	//delete_section()
+	//create dummy 
+	//MoveElec.erase()
+
+	dummy {
+		pt3dclear()
+		pt3dadd($1+0.5, $2, $3, 1)
+		pt3dadd($1-0.5, $2, $3, 1)
+		place_Elec = new IClamp(0.5)
+		L = 0.001	
+	}
+	MoveElec.point_mark(place_Elec, 3)  // make it red
+	//MoveElec.mark($1,$2,"o",55,3,1)  // circle radius problem has to solve
+	
+	MoveElec.exec_menu("View = plot") 
+	//print "set elec called"
+	//MoveElec.change_text($1,$2,"hai")
+	
+
+}
+
+
+proc setelec() {
+	xe = $1
+	ye = $2
+	ze = $3
+	// Do calculation
+	//get_included_comp(xe, ye, ze)
+	drawelec(xe*1e6, ye*1e6, ze*1e6)
+}
+
+
+
+
+//setelec(XE, YE, ZE)  // put stim electrode at (x, y, z)
+// print "Use setelec(x, y, z) to change location of extracellular recording electrode"
+/*
+xpanel("Extracellular Electrode Location", 0)
+  xlabel("xyz coords in um")
+  xvalue("x", "XE", 1, "setelec(XE,YE,ZE)", 0, 1)
+  xvalue("y", "YE", 1, "setelec(XE,YE,ZE)", 0, 1)
+  xvalue("z", "ZE", 1, "setelec(XE,YE,ZE)", 0, 1)
+xpanel(855,204)
+
+*/

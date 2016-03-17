@@ -1,0 +1,214 @@
+// GUI for Movable_LFP_ReCONV_electrode
+
+
+
+objref h00,h11,h22,h33,v1,v2,v3,v4,v11,v22,v33,v44
+objref MoveElec,MoveElec_plot, g1, g2, g3  
+
+objref h44,h55,h66
+
+		// codel for interface partition
+
+h00=new VBox()
+h11=new HBox()
+h22=new HBox()
+h33=new HBox()
+
+h44=new VBox()
+h55=new VBox()
+h66=new VBox()
+
+proc run_run(){
+	run()
+	g1.exec_menu("View = plot")
+	g2.exec_menu("View = plot")
+	g3.exec_menu("View = plot")
+}
+
+
+h00.intercept(1)
+		xpanel("Control Panel")
+		xlabel(" ===== Welcome to LFP Simuation ===== ")
+		xlabel(" ===== Welcome to LFP Simuation ===== ")
+		xlabel(" ===== Welcome to LFP Simuation ===== ")
+		
+		xpanel()
+
+h11.intercept(1)
+	
+	v1=new VBox()
+	v22=new VBox()
+	v33=new VBox()
+	v44=new VBox()
+	
+	v1.intercept(1)
+
+		MoveElec = new Shape(0)
+		MoveElec.view(571.097, 572.916, 54.0667, 53.8575, 463, 88, 201.6, 200.82)
+		MoveElec.exec_menu("View = plot")
+
+
+		MoveElec_plot = new PlotShape(0)
+		MoveElec_plot.view(571.097, 572.916, 54.0667, 53.8575, 463, 88, 201.6, 200.82)		
+		MoveElec_plot.exec_menu("View = plot")
+		MoveElec_plot.exec_menu("Shape Plot")
+
+		// Part of VSD code has to put here
+
+	v1.intercept(0)
+	v1.map("Shape plots", 1, 1, 200, 300)
+
+	v2=new VBox()
+	v2.intercept(1)
+		
+		h44.intercept(1)
+
+			xpanel("Reconstructed LFP waves", 0)
+			xlabel("                 Reconstructed LFP waves")
+			xlabel("                 =======================")
+		
+			xlabel("Point Source Approximation")
+			
+			
+		
+			xpanel()
+
+		h44.intercept(0)
+		h44.map()
+		
+		g1 = new Graph()	
+		g1.addvar("vrec_point", 1, 1, 0.8, 0.9, 2)
+		graphList[0].append(g1)
+		
+
+
+		h55.intercept(1)
+			xpanel("", 0)
+			xlabel("")
+			xlabel("Line Source Approximation")
+
+			xpanel()
+		h55.intercept(0)
+		h55.map()
+
+
+
+		g2 = new Graph()	
+		g2.addvar("vrec_line", 1, 1, 0.8, 0.9, 2)
+		graphList[0].append(g2)
+
+		h66.intercept(1)
+			xpanel("", 0)
+			xlabel("")
+			xlabel("Simple Low-pass Filter")
+			
+			
+			xpanel()
+		h66.intercept(0)
+		h66.map()
+
+		g3 = new Graph()	
+		g3.addvar("vrec_RC", 1, 1, 0.8, 0.9, 2)
+		graphList[0].append(g3)
+		
+		
+	
+		//g1.flush()	
+		//g1.color(index)	
+		//g1.exec_menu("View = plot")
+	
+		//plot_reconv()  will call for plotting LFP wave after ReCONV algorithm 
+
+
+		
+
+
+
+
+		
+	v2.intercept(0)
+	v2.map("Shape plots", 1, 1, 200, 300)
+
+	v3=new VBox()
+	v3.intercept(1)
+	
+		xpanel("Extracellular Electrode Location", 0)
+		xlabel("")
+		xlabel("       Extracellular Electrode Location")
+		xlabel("       =================================")
+		xlabel("")
+		xlabel("X,Y,Z coordinates are in um")
+		xvalue("X", "elec_x", 1, "setelec(elec_x,elec_y,elec_y)", 0, 1)
+		xvalue("Y", "elec_y", 1, "setelec(elec_x,elec_y,elec_y)", 0, 1)
+		xvalue("Z", "elec_z", 1, "setelec(elec_x,elec_y,elec_y)", 0, 1)
+	
+		xlabel("")
+		xlabel("")
+		xlabel("Run Control")
+		xlabel("===========")
+		xlabel("")
+		
+		xvalue("Init","v_init", 1,"stdinit()", 1, 1 )
+		xbutton("Init & Run","run_run()")
+		xbutton("Stop","stoprun=1")
+		t = 200
+		xvalue("t","t", 2 )
+		tstop = 200
+		xvalue("Tstop","tstop", 1,"tstop_changed()", 0, 1 )
+		dt = 0.025
+		xvalue("dt","dt", 1,"setdt()", 0, 1 )
+		realtime = 4.13
+		xvalue("Real Time","realtime", 0,"", 0, 1 )
+
+		xpanel()
+		setelec(elec_x,elec_y,elec_y)
+		
+		/*xpanel("Control Panel")
+		xlabel("Reconstruction of Local Field Potential from Granule cell model (Diwakar et al, 2009).")
+		xlabel("For Invitro like behaviour 700 GrC cell models were used.")
+		xlabel("For Invivo like behaviour  220 GrC cell models were used.")
+		xpanel()*/
+		
+		
+		
+		h22.intercept(1)
+		
+			v22.intercept(1)
+				xpanel("Control Panel")
+				xbutton("Clear plot","Clear_plot()")
+				xpanel()
+			v22.intercept(0)
+			v22.map()
+			
+			
+			v33.intercept(1)
+				xpanel("Control Panel")
+				xbutton("Save ascii","g_save_ascii()")
+				xpanel()
+			v33.intercept(0)
+			v33.map()
+			
+			v44.intercept(1)
+				xpanel("Control Panel")
+				xbutton("Save eps","save_eps()")
+				xpanel()
+			v44.intercept(0)
+			v44.map()
+			
+			
+
+		h22.intercept(0)
+		h22.map()
+
+		
+	v3.intercept(0)
+	v3.map()
+	
+
+h11.intercept(0)
+h11.map()
+
+h00.intercept(0)
+h00.map("LFP Simulation tool", 1, 1, 1300, 800)
+
+

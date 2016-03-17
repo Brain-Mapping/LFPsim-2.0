@@ -1,0 +1,243 @@
+//Extracellular
+
+
+//get 3d coordinates of compartments
+
+// have to consider doing VSD like plot of a loaded neuron in separate shape plot to visualize 
+
+//objref MoveElec
+//MoveElec = new Shape()	
+
+
+elec_x = 100e-6
+elec_y = -200e-6
+elec_z = 100e-6
+
+
+
+xopen("Move_ele.hoc")
+
+
+
+forall{
+
+	insert extracellular
+	insert lfp
+}
+	
+	
+forall {    
+
+    if (ismembrane("lfp")) {	
+	x = (x3d(0) + x3d(1)) / 2 
+	y = (y3d(0) + y3d(1)) / 2 
+	z = (z3d(0) + z3d(1)) / 2 
+
+	dis = sqrt( ((elec_x - x)*(elec_x - x)) + ((elec_y - y)*(elec_y - y)) + ((elec_z - z)*(elec_z - z)))
+	point_part1 = (0.354 / (4 * 3.141 * dis))
+
+	
+
+
+	//calculate length of the compartment
+	
+
+	sigma = 0.351
+	dist_comp = sqrt( ((x3d(1) - x3d(0))*(x3d(1) - x3d(0))) + ((y3d(1) - y3d(0))*(y3d(1) - y3d(0))) + ((z3d(1) - z3d(0))*(z3d(1) - z3d(0))))
+
+	dist_comp_x = x3d(1) - x3d(0)
+	dist_comp_y = y3d(1) - y3d(0)
+	dist_comp_z = z3d(1) - z3d(0)
+
+
+	sum_dist_comp = (dist_comp_x*dist_comp_x) + (dist_comp_y*dist_comp_y) + (dist_comp_z*dist_comp_z)
+	sum_dist_comp=sqrt(sum_dist_comp)
+
+	long_dist_x = (elec_x- x3d(1))
+	long_dist_y = (elec_y- y3d(1))
+	long_dist_z = (elec_z- z3d(1))
+
+	HH_x = long_dist_x * dist_comp_x
+	HH_y = long_dist_y * dist_comp_y
+	HH_z = long_dist_z * dist_comp_z
+
+	sum_HH =HH_x + HH_y +HH_z
+				
+	final_sum_HH = sum_HH / sum_dist_comp
+
+	temp1_x = long_dist_x * long_dist_x
+	temp1_y = long_dist_y * long_dist_y
+	temp1_z = long_dist_z * long_dist_z
+
+	sum_temp1 = temp1_x + temp1_y + temp1_z
+	r_sq = sum_temp1 -(final_sum_HH * final_sum_HH)
+			
+	Length_vector = final_sum_HH + sum_dist_comp
+							
+
+	if ((final_sum_HH<0)&&(Length_vector<=0)){
+	//if (I1!=0){	
+		
+		ans1=final_sum_HH*final_sum_HH
+		ans2=ans1+r_sq
+		ans3=sqrt(ans2)
+		ans4=ans3-final_sum_HH
+		ans5=Length_vector*Length_vector
+		ans6=ans5+r_sq
+		ans7=sqrt(ans6)
+		ans8=ans7-Length_vector
+		ans9=ans4/ans8
+		ans10=log(ans9)
+		phi=ans10
+
+	}else if((final_sum_HH>0)&&(Length_vector>0)){
+
+		ans1=Length_vector*Length_vector
+		ans2=ans1+r_sq
+		ans3=sqrt(ans2)
+		ans4=ans3+Length_vector
+		ans5=final_sum_HH*final_sum_HH
+		ans6=ans5+r_sq
+		ans7=sqrt(ans6)
+		ans8=ans7+final_sum_HH
+		ans9=ans4/ans8
+		ans10=log(ans9)
+		phi=ans10
+	}else{
+
+		ans1=final_sum_HH*final_sum_HH
+		ans2=ans1+r_sq
+		ans3=sqrt(ans2)
+		ans4=ans3-final_sum_HH
+		ans5=Length_vector*Length_vector
+		ans6=ans5+r_sq
+		ans7=sqrt(ans6)
+		ans8=ans7+Length_vector
+		ans9=ans8*ans4
+		ans10=ans9/r_sq
+		ans10=log(ans10)
+		phi=ans10			
+	}
+
+
+	first_part_l = 1/(4*PI*sigma*sum_dist_comp*phi)
+	
+	//second_part=I_segs/sum_dist_comp*phi     // should go in mod file 
+	//final_phi = first_part * second_part
+
+
+
+	// RC algorithm implementation
+
+	permitivity = 0.57525 //72.3
+	resistivity = 35.5 * 0.01   // ohm/cm to mega-ohm/um
+	RC = resistivity * permitivity
+	velo = 220 // um/ms
+	
+	time_const = dis / velo
+	first_part_rc =  exp(-1 *(time_const/RC))
+
+	for (x, 0) {
+		
+		setpointer vvext_lfp(x), vext[0](x)
+		setpointer im_lfp(x), i_membrane(x)
+
+		setpointer first_part_point_lfp(x), point_part1
+
+		setpointer first_part_line_lfp(x), first_part_l
+
+		setpointer first_part_RC_lfp(x), first_part_rc
+						
+				
+	}
+
+
+
+    }
+}
+
+
+
+
+vrec = 0  // extracellularly recorded potential
+
+func fieldrec_point() { local sum
+	sum = 0
+	forall {
+	  if (ismembrane("lfp")) {
+		// avoid nodes at 0 and 1 ends, which shouldn't make any contribution
+		for (x,0) sum += lfp_point_lfp(x)
+	  }
+	}
+	return sum
+}
+
+
+func fieldrec_line() { local sum
+	sum = 0
+	forall {
+	  if (ismembrane("lfp")) {
+		// avoid nodes at 0 and 1 ends, which shouldn't make any contribution
+		for (x,0) sum += lfp_line_lfp(x)
+	  }
+	}
+	return sum
+}
+
+
+
+func fieldrec_RC() { local sum
+	sum = 0
+	forall {
+	  if (ismembrane("lfp")) {
+		// avoid nodes at 0 and 1 ends, which shouldn't make any contribution
+		for (x,0) sum += lfp_RC_lfp(x)
+	  }
+	}
+	return sum
+}
+
+
+
+
+
+proc init() {
+        finitialize(v_init)
+        fcurrent()
+	vrec_point = fieldrec_point()
+	vrec_line = fieldrec_line()
+	vrec_RC = fieldrec_RC()
+}
+
+proc advance() {
+        fadvance()
+	vrec_point = fieldrec_point()
+	vrec_line = fieldrec_line()
+	vrec_RC = fieldrec_RC()
+}
+
+/*objref total_lfp
+total_lfp = new Vector()
+total_lfp.record(&vrec)*/
+
+xopen("Movable_LFP_elec.hoc")
+
+/*
+proc plot_reconv(){
+	index += 1
+	//g = new Graph()	
+
+	g.beginline()		
+	for i=0,8000{			
+		g.line(i, Ynew2.x[i])	
+
+	}
+	g.flush()	
+	g.color(index)	
+	g.exec_menu("View = plot")
+}
+
+plot_reconv()
+*/
+
+
