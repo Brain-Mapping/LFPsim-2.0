@@ -1,0 +1,81 @@
+
+
+
+run_multi()
+
+objref mv1,mv2
+objref mh1,mh2,mh3,mh4
+
+		// codel for interface partition
+
+mv1=new VBox()
+mv2=new VBox()
+mh1=new HBox()
+mh2=new HBox()
+mh3=new HBox()
+mh4=new HBox()
+
+
+
+objref m_e_g[16]
+
+proc make_plots(){
+	for i=$1,$2{
+	m_e_g[i] = new Graph()
+
+
+
+	m_e_g[i].beginline()		
+		for k=0,mea_rec[i].size()-1{			
+			m_e_g[i].line((k*dt), mea_rec[i].x[k])	
+
+		}
+	m_e_g[i].flush()	
+	//g.color(index)	
+	m_e_g[i].exec_menu("View = plot")
+	
+	}
+	
+}
+
+
+
+
+mv1.intercept(1)
+	
+	mv2.intercept(1)
+
+		xpanel("Control Panel")
+		xlabel("                                                  ===== Multiple electrode recording ===== ")
+		xlabel("")
+
+		xpanel()
+
+	mv2.intercept(0)
+	mv2.map()
+
+	mh1.intercept(1)		//row 1
+		make_plots(0,3)
+	mh1.intercept(0)
+	mh1.map()
+
+	mh2.intercept(1)		//row 2
+		make_plots(4,7)
+	mh2.intercept(0)
+	mh2.map()
+
+	mh3.intercept(1)		//row 3
+		make_plots(8,11)
+	mh3.intercept(0)
+	mh3.map()
+
+	mh4.intercept(1)		//row 3
+		make_plots(12,15)
+	mh4.intercept(0)
+	mh4.map()
+
+
+
+mv1.intercept(0)
+mv1.map("LFP Simulation tool", 1, 1, 800, 800)
+

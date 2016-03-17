@@ -44,14 +44,13 @@ PROCEDURE f() {	: calculation block
 BREAKPOINT { 
 
 	:Point Source Approximation 	
-	lfp_point =   vvext * first_part_point * area
+	lfp_point =   im * first_part_point  * 1e3 : 1e3 (mA to uA) So the calculated signal will be in uV
 
 	:Line Source Approximation
-	lfp_line =   im * first_part_line  * area * 1e-12
+	lfp_line =   im * first_part_line  * 1e3 : 1e3 (mA to uA) : the calculated signal will be in uV
 
 	:RC
-	lfp_RC =   vvext * first_part_RC  * area 
-
+	lfp_RC =   im * first_part_RC * 1e-1 : 1e6 (F to uF) * 1e3 (mA to uA) * 1e-2 (m to um) So the calculated signal will be in uV
 
 }
 

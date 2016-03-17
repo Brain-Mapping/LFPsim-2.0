@@ -6,7 +6,7 @@ objref h00,h11,h22,h33,v1,v2,v3,v4,v11,v22,v33,v44
 objref MoveElec,MoveElec_plot, g1, g2, g3  
 
 objref h44,h55,h66
-
+objref sl
 		// codel for interface partition
 
 h00=new VBox()
@@ -20,6 +20,7 @@ h66=new VBox()
 
 proc run_run(){
 	run()
+	file_write()
 	g1.exec_menu("View = plot")
 	g2.exec_menu("View = plot")
 	g3.exec_menu("View = plot")
@@ -28,9 +29,9 @@ proc run_run(){
 
 h00.intercept(1)
 		xpanel("Control Panel")
-		xlabel(" ===== Welcome to LFP Simuation ===== ")
-		xlabel(" ===== Welcome to LFP Simuation ===== ")
-		xlabel(" ===== Welcome to LFP Simuation ===== ")
+		xlabel("                                                  ===== Welcome to LFP Simuation Tool ===== ")
+		xlabel("This LFP simulation tool helps to calculate the LFP of any biophysically detailed model of neurons and micro circuits implemented in NEURON")
+		xlabel(" The tool is developed by Harilal Parasuram and Shyam Diwakar, Amrita University, India")
 		
 		xpanel()
 
@@ -47,16 +48,15 @@ h11.intercept(1)
 		MoveElec.view(571.097, 572.916, 54.0667, 53.8575, 463, 88, 201.6, 200.82)
 		MoveElec.exec_menu("View = plot")
 
-
 		MoveElec_plot = new PlotShape(0)
 		MoveElec_plot.view(571.097, 572.916, 54.0667, 53.8575, 463, 88, 201.6, 200.82)		
 		MoveElec_plot.exec_menu("View = plot")
+		MoveElec_plot.exec_menu("Space Plot")
 		MoveElec_plot.exec_menu("Shape Plot")
-
 		// Part of VSD code has to put here
 
 	v1.intercept(0)
-	v1.map("Shape plots", 1, 1, 200, 300)
+	v1.map("Shape plots", 1, 1, 500, 600)
 
 	v2=new VBox()
 	v2.intercept(1)
@@ -121,47 +121,52 @@ h11.intercept(1)
 
 
 		
-
-
-
-
 		
 	v2.intercept(0)
-	v2.map("Shape plots", 1, 1, 200, 300)
+	v2.map("Shape plots", 1, 1, 400, 500)
 
 	v3=new VBox()
 	v3.intercept(1)
 	
 		xpanel("Extracellular Electrode Location", 0)
-		xlabel("")
-		xlabel("       Extracellular Electrode Location")
-		xlabel("       =================================")
-		xlabel("")
+		xlabel("                  Extracellular Electrode Location")
+		xlabel("                  =================================")
+
 		xlabel("X,Y,Z coordinates are in um")
-		xvalue("X", "elec_x", 1, "setelec(elec_x,elec_y,elec_y)", 0, 1)
-		xvalue("Y", "elec_y", 1, "setelec(elec_x,elec_y,elec_y)", 0, 1)
-		xvalue("Z", "elec_z", 1, "setelec(elec_x,elec_y,elec_y)", 0, 1)
+		xvalue("X", "elec_x", 1, "setelec(elec_x,elec_y,elec_z)", 0, 1)
+		xvalue("Y", "elec_y", 1, "setelec(elec_x,elec_y,elec_z)", 0, 1)
+		xvalue("Z", "elec_z", 1, "setelec(elec_x,elec_y,elec_z)", 0, 1)
 	
 		xlabel("")
 		xlabel("")
-		xlabel("Run Control")
-		xlabel("===========")
+		xbutton("Set Multiple_Electrode","multi_electrode_panel()")
+		xbutton("Calculate Multiple_Electrode","run_multi_button()")
 		xlabel("")
-		
-		xvalue("Init","v_init", 1,"stdinit()", 1, 1 )
-		xbutton("Init & Run","run_run()")
-		xbutton("Stop","stoprun=1")
-		t = 200
-		xvalue("t","t", 2 )
-		tstop = 200
-		xvalue("Tstop","tstop", 1,"tstop_changed()", 0, 1 )
-		dt = 0.025
-		xvalue("dt","dt", 1,"setdt()", 0, 1 )
-		realtime = 4.13
-		xvalue("Real Time","realtime", 0,"", 0, 1 )
+		xlabel("")
 
+
+		xlabel("                  Extracellular Medium Parameters")
+		xlabel("                  ================================")
+		xlabel("Any changes to these parameters is applicable to all the compartments")
+		xlabel("in the model.")	
+		xlabel("Extracellular Capacitance (in uF / cm2)")
+		xvalue("xc[0] (Layer 1)", "local_xc_0", 1, "change_local_xc_0(local_xc_0)", 0, 1)
+		xvalue("xc[1] (Layer 2)", "local_xc_1", 1, "change_local_xc_1(local_xc_1)", 0, 1)
+
+		xlabel("")
+		xlabel("Extracellular Conductance (in mhn/cm2)")
+		xvalue("xg[0] (Layer 1)", "local_xg_0", 1, "change_local_xg_0(local_xc_0)", 0, 1)
+		xvalue("xg[1] (Layer 2)", "local_xg_1", 1, "change_local_xg_1(local_xc_1)", 0, 1)
+		xlabel("")
+
+		xlabel("Extracellular axial resistance (in uF / cm2)")
+		xvalue("xraxial[0] (Layer 1)", "local_xraxial_0", 1, "change_local_xraxial_0(local_xraxial_0)", 0, 1)
+		xvalue("xraxial[1] (Layer 2)", "local_xraxial_1", 1, "change_local_xraxial_1(local_xraxial_1)", 0, 1)
 		xpanel()
-		setelec(elec_x,elec_y,elec_y)
+
+
+
+		
 		
 		/*xpanel("Control Panel")
 		xlabel("Reconstruction of Local Field Potential from Granule cell model (Diwakar et al, 2009).")
@@ -171,34 +176,37 @@ h11.intercept(1)
 		
 		
 		
-		h22.intercept(1)
+		//h22.intercept(1)
 		
-			v22.intercept(1)
-				xpanel("Control Panel")
-				xbutton("Clear plot","Clear_plot()")
-				xpanel()
-			v22.intercept(0)
-			v22.map()
-			
-			
-			v33.intercept(1)
-				xpanel("Control Panel")
-				xbutton("Save ascii","g_save_ascii()")
-				xpanel()
-			v33.intercept(0)
-			v33.map()
-			
-			v44.intercept(1)
-				xpanel("Control Panel")
-				xbutton("Save eps","save_eps()")
-				xpanel()
-			v44.intercept(0)
-			v44.map()
-			
+		
+
+		xpanel("")
+		xlabel("                  Simulation Control")
+		//xlabel("                  ==================")
+		//xlabel("")
+		
+		xvalue("Init","v_init", 1,"stdinit()", 1, 1 )
+		xbutton("Init & Run","run_run()")
+		xbutton("Stop","stoprun=1")
+		//t = 200
+		xvalue("t","t", 2 )
+		//tstop = 200
+		xvalue("Tstop","tstop", 1,"tstop_changed()", 0, 1 )
+		//dt = 0.025
+		xvalue("dt","dt", 1,"setdt()", 0, 1 )
+		//realtime = 4.13
+		xvalue("Real Time","realtime", 0,"", 0, 1 )
+		
+
+		xpanel()
+		setelec(elec_x,elec_y,elec_z)	
 			
 
-		h22.intercept(0)
-		h22.map()
+		
+
+
+		//h22.intercept(0)
+		//h22.map()
 
 		
 	v3.intercept(0)
@@ -209,6 +217,29 @@ h11.intercept(0)
 h11.map()
 
 h00.intercept(0)
-h00.map("LFP Simulation tool", 1, 1, 1300, 800)
+h00.map("LFP Simulation tool", 1, 1, 1300, 700)
 
+
+
+// multi electrode panel
+
+proc multi_electrode_panel(){
+		xopen("multiple_elec1.hoc")
+		xpanel("Multi Electrode Panel")
+		xlabel("                  Simulation Control")
+		xlabel("                  ==================")
+		xlabel("")
+
+		xlabel("Enter starting X,Y,Z coordinates of 4x4 electrode array")
+		xvalue("X", "mul_start_point_x", 1, "set_multi_electrode(mul_start_point_x,mul_start_point_y,mul_start_point_z,mul_elec_distance)", 0, 1)
+		xvalue("Y", "mul_start_point_y", 1, "set_multi_electrode(mul_start_point_x,mul_start_point_y,mul_start_point_z,mul_elec_distance)", 0, 1)
+		xvalue("Z", "mul_start_point_z", 1, "set_multi_electrode(mul_start_point_x,mul_start_point_y,mul_start_point_z,mul_elec_distance)", 0, 1)
+
+		xvalue("Distance between electrodes", "mul_elec_distance", 1, "set_multi_electrode(mul_start_point_x,mul_start_point_y,mul_start_point_z,mul_elec_distance)", 0, 1)
+		xbutton("Place the electrodes","multi_electrode()")
+
+		xpanel()
+
+
+}
 

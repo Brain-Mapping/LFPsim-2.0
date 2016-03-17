@@ -1,162 +1,186 @@
-//Extracellular
-
-
-//get 3d coordinates of compartments
-
-// have to consider doing VSD like plot of a loaded neuron in separate shape plot to visualize 
-
-//objref MoveElec
-//MoveElec = new Shape()	
-
-
-elec_x = 100e-6
-elec_y = -200e-6
-elec_z = 100e-6
+/*This LFP simulation tool helps to calculate the LFP of any biophysically detailed model of neuron implemented in NEURON which is widely available at Model DB. This tool is developed by Harilal Parasuram at Shyam Diwakar's lab at Amrita University, India.
+*/
 
 
 
-xopen("Move_ele.hoc")
+//Electrode position
+elec_x = -100
+elec_y = 50
+elec_z = 1
 
+
+objref MoveElec  
+
+MoveElec = new Shape(0)  // create it but don't map it to the screen yet
 
 
 forall{
 
 	insert extracellular
 	insert lfp
+	
+	local_xc_0 = xc[0] 
+	local_xc_1 = xc[1] 
+
+	local_xg_0 = xg[0]
+	local_xg_1 = xg[1]
+
+	local_xraxial_0 = xraxial[0]
+	local_xraxial_1 = xraxial[1]
+	
 }
 	
+
+proc change_local_xc_0(){
+
+	forall{
+		xc[0]=$1	
+	}	
+}
+
+
+proc change_local_xc_1(){
+
+	forall{
+		xc[1]=$1	
+	}	
+}
+
+
+proc change_local_xg_0(){
+
+	forall{
+		xg[0]=$1	
+	}	
+}
+
+
+
+proc change_local_xg_1(){
+
+	forall{
+		xg[1]=$1	
+	}	
+}
+
+
+proc change_local_xraxial_0(){
+
+	forall{
+		xraxial[0]=$1	
+	}	
+}
+
+proc change_local_xraxial_1(){
+
+	forall{
+		xraxial[1]=$1	
+	}	
+}
+
+
+
+proc re_insert_elec(){
+
 	
-forall {    
+	forall {    
 
-    if (ismembrane("lfp")) {	
-	x = (x3d(0) + x3d(1)) / 2 
-	y = (y3d(0) + y3d(1)) / 2 
-	z = (z3d(0) + z3d(1)) / 2 
+	    if (ismembrane("lfp")) {	
+		x = (x3d(0) + x3d(1)) / 2 
+		y = (y3d(0) + y3d(1)) / 2 
+		z = (z3d(0) + z3d(1)) / 2 
 
-	dis = sqrt( ((elec_x - x)*(elec_x - x)) + ((elec_y - y)*(elec_y - y)) + ((elec_z - z)*(elec_z - z)))
-	point_part1 = (0.354 / (4 * 3.141 * dis))
 
+		dis = sqrt( ((elec_x - x)*(elec_x - x)) + ((elec_y - y)*(elec_y - y)) + ((elec_z - z)*(elec_z - z)))
+		point_part1 = (0.354 / (4 * 3.141 * dis))
+
+
+		//calculate length of the compartment
 	
+		sigma = 0.354
+
+		//dist_comp = sqrt( ((x1 - x0)*(x1 - x0)) + ((y1 - y0)*(y1 - y0)) + ((z1 - z0)*(z1 - z0)))
+		dist_comp = sqrt( ((x3d(1) - x3d(0))*(x3d(1) - x3d(0))) + ((y3d(1) - y3d(0))*(y3d(1) - y3d(0))) + ((z3d(1) - z3d(0))*(z3d(1) - z3d(0))))
 
 
-	//calculate length of the compartment
-	
+		dist_comp_x = (x3d(1) - x3d(0)) //* 1e-6
+		dist_comp_y = (y3d(1) - y3d(0)) //* 1e-6
+		dist_comp_z = (z3d(1) - z3d(0)) //* 1e-6
 
-	sigma = 0.351
-	dist_comp = sqrt( ((x3d(1) - x3d(0))*(x3d(1) - x3d(0))) + ((y3d(1) - y3d(0))*(y3d(1) - y3d(0))) + ((z3d(1) - z3d(0))*(z3d(1) - z3d(0))))
+		sum_dist_comp = sqrt((dist_comp_x*dist_comp_x) + (dist_comp_y*dist_comp_y) + (dist_comp_z*dist_comp_z))
 
-	dist_comp_x = x3d(1) - x3d(0)
-	dist_comp_y = y3d(1) - y3d(0)
-	dist_comp_z = z3d(1) - z3d(0)
+		long_dist_x = (elec_x- x3d(1))
+		long_dist_y = (elec_y- y3d(1))
+		long_dist_z = (elec_z- z3d(1))
 
-
-	sum_dist_comp = (dist_comp_x*dist_comp_x) + (dist_comp_y*dist_comp_y) + (dist_comp_z*dist_comp_z)
-	sum_dist_comp=sqrt(sum_dist_comp)
-
-	long_dist_x = (elec_x- x3d(1))
-	long_dist_y = (elec_y- y3d(1))
-	long_dist_z = (elec_z- z3d(1))
-
-	HH_x = long_dist_x * dist_comp_x
-	HH_y = long_dist_y * dist_comp_y
-	HH_z = long_dist_z * dist_comp_z
-
-	sum_HH =HH_x + HH_y +HH_z
+		sum_HH = (long_dist_x * dist_comp_x) + (long_dist_y * dist_comp_y) + (long_dist_z * dist_comp_z)
 				
-	final_sum_HH = sum_HH / sum_dist_comp
+		final_sum_HH = sum_HH / sum_dist_comp
 
-	temp1_x = long_dist_x * long_dist_x
-	temp1_y = long_dist_y * long_dist_y
-	temp1_z = long_dist_z * long_dist_z
-
-	sum_temp1 = temp1_x + temp1_y + temp1_z
-	r_sq = sum_temp1 -(final_sum_HH * final_sum_HH)
+		sum_temp1 = (long_dist_x * long_dist_x) + (long_dist_y * long_dist_y) + (long_dist_z * long_dist_z)
+		r_sq = sum_temp1 -(final_sum_HH * final_sum_HH)
 			
-	Length_vector = final_sum_HH + sum_dist_comp
+		Length_vector = final_sum_HH + sum_dist_comp
 							
 
-	if ((final_sum_HH<0)&&(Length_vector<=0)){
-	//if (I1!=0){	
+
+		if ((final_sum_HH<0)&&(Length_vector<=0)){
+
+
+			phi=log((sqrt((final_sum_HH*final_sum_HH) + r_sq) - final_sum_HH)/(sqrt((Length_vector*Length_vector)+r_sq)-Length_vector))
+
+
+		}else if((final_sum_HH>0)&&(Length_vector>0)){
+
+			
+			phi=log((sqrt((Length_vector*Length_vector)+r_sq) + Length_vector)/(sqrt((final_sum_HH*final_sum_HH)+r_sq) + final_sum_HH))
+			
+		}else{
+
+			phi=log(((sqrt((Length_vector*Length_vector)+r_sq)+Length_vector) * (sqrt((final_sum_HH*final_sum_HH)+r_sq)-final_sum_HH))/r_sq)
+						
+		}
+
+
+		first_part_l = (1*sigma)/(4*PI*sum_dist_comp) * phi
+
+
+		//first_part=1/(4*PI*sigma)
+		//second_part=I_segs/sum_dist_comp*phi     // should go in mod file 
+		//final_phi = first_part * second_part
+
+
+
+		// RC algorithm implementation
+
+		permitivity = 72.3 //1e6 (F to uF) * 1e-2 (m to cm) So the calculated signal will be in uV
+		//0.57525  
+		RC = sigma * permitivity
 		
-		ans1=final_sum_HH*final_sum_HH
-		ans2=ans1+r_sq
-		ans3=sqrt(ans2)
-		ans4=ans3-final_sum_HH
-		ans5=Length_vector*Length_vector
-		ans6=ans5+r_sq
-		ans7=sqrt(ans6)
-		ans8=ans7-Length_vector
-		ans9=ans4/ans8
-		ans10=log(ans9)
-		phi=ans10
-
-	}else if((final_sum_HH>0)&&(Length_vector>0)){
-
-		ans1=Length_vector*Length_vector
-		ans2=ans1+r_sq
-		ans3=sqrt(ans2)
-		ans4=ans3+Length_vector
-		ans5=final_sum_HH*final_sum_HH
-		ans6=ans5+r_sq
-		ans7=sqrt(ans6)
-		ans8=ans7+final_sum_HH
-		ans9=ans4/ans8
-		ans10=log(ans9)
-		phi=ans10
-	}else{
-
-		ans1=final_sum_HH*final_sum_HH
-		ans2=ans1+r_sq
-		ans3=sqrt(ans2)
-		ans4=ans3-final_sum_HH
-		ans5=Length_vector*Length_vector
-		ans6=ans5+r_sq
-		ans7=sqrt(ans6)
-		ans8=ans7+Length_vector
-		ans9=ans8*ans4
-		ans10=ans9/r_sq
-		ans10=log(ans10)
-		phi=ans10			
-	}
-
-
-	first_part_l = 1/(4*PI*sigma*sum_dist_comp*phi)
 	
-	//second_part=I_segs/sum_dist_comp*phi     // should go in mod file 
-	//final_phi = first_part * second_part
+		time_const = dis / 240 // velo um/ms  // Nauhaus et al, 2009 calculated the propagation speed on average, 0.24 ± 0.20 m/s in monkeys and 0.31 ± 0.23 m/s in cats (mean ± s.d.) ie, 240 um/ms
+		first_part_rc =  exp(-1 *(time_const/RC))
 
-
-
-	// RC algorithm implementation
-
-	permitivity = 0.57525 //72.3
-	resistivity = 35.5 * 0.01   // ohm/cm to mega-ohm/um
-	RC = resistivity * permitivity
-	velo = 220 // um/ms
-	
-	time_const = dis / velo
-	first_part_rc =  exp(-1 *(time_const/RC))
-
-	for (x, 0) {
+		for (x, 0) {
 		
-		setpointer vvext_lfp(x), vext[0](x)
-		setpointer im_lfp(x), i_membrane(x)
+			setpointer vvext_lfp(x), vext[0](x)
+			setpointer im_lfp(x), i_membrane(x)
 
-		setpointer first_part_point_lfp(x), point_part1
+			setpointer first_part_point_lfp(x), point_part1
 
-		setpointer first_part_line_lfp(x), first_part_l
+			setpointer first_part_line_lfp(x), first_part_l
 
-		setpointer first_part_RC_lfp(x), first_part_rc
+			setpointer first_part_RC_lfp(x), first_part_rc
 						
 				
+		}
+
+
+
+	    }
 	}
 
-
-
-    }
 }
-
-
 
 
 vrec = 0  // extracellularly recorded potential
@@ -216,28 +240,84 @@ proc advance() {
 	vrec_RC = fieldrec_RC()
 }
 
-/*objref total_lfp
+objref total_lfp
 total_lfp = new Vector()
-total_lfp.record(&vrec)*/
+total_lfp.record(&vrec_line)
 
-xopen("Movable_LFP_elec.hoc")
 
-/*
-proc plot_reconv(){
-	index += 1
-	//g = new Graph()	
+objref total_point
+total_point = new Vector()
+total_point.record(&vrec_point)
 
-	g.beginline()		
-	for i=0,8000{			
-		g.line(i, Ynew2.x[i])	
+objref total_RC
+total_RC = new Vector()
+total_RC.record(&vrec_RC)
 
-	}
-	g.flush()	
-	g.color(index)	
-	g.exec_menu("View = plot")
+
+
+
+func change_electrode_pos() {
+	
+	if($1 == 2) {
+		
+		setelec($2, $3, -2)	
+		//drawelec($2, $3, 0)
+		//positions[0].append($2)
+		//positions[1].append($3)
+		print "x, y = ",$2,$3	
+	}				
+	
+	run_run()
+	return (0)
+	
+}	
+
+
+MoveElec.menu_tool("LFP_electrode", "change_electrode_pos","1")
+
+objref f
+proc file_write(){
+	f = new File()
+
+	f.wopen("line.txt") 
+		for i=0, total_lfp.size()-1 { 
+
+			f.printf("%e",total_lfp.x[i]) 
+			f.printf("\n")
+		}
+	f.close()	
+
+
+
+	f.wopen("point.txt") 
+		for i=0, total_point.size()-1 { 
+
+			f.printf("%e",total_point.x[i]) 
+			f.printf("\n")
+		}
+	f.close()
+
+
+	f.wopen("rc.txt") 
+		for i=0, total_RC.size()-1 { 
+
+			f.printf("%e",total_RC.x[i]) 
+			f.printf("\n")
+		}
+	f.close()
+	
 }
 
-plot_reconv()
-*/
+
+//run_run()
+
+
+
+
+
+
+	
+
+
 
 

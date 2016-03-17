@@ -1,0 +1,145 @@
+func mea_fieldrec_line0() { local sum
+	sum = 0
+	forall {
+	  if (ismembrane("mea")) {
+		for (x,0) sum += mea_line0_mea(x)
+	  }
+	}
+	return sum
+}
+func mea_fieldrec_line1() { local sum
+	sum = 0
+	forall {
+	  if (ismembrane("mea")) {
+		for (x,0) sum += mea_line1_mea(x)
+	  }
+	}
+	return sum
+}
+func mea_fieldrec_line2() { local sum
+	sum = 0
+	forall {
+	  if (ismembrane("mea")) {
+		for (x,0) sum += mea_line2_mea(x)
+	  }
+	}
+	return sum
+}
+func mea_fieldrec_line3() { local sum
+	sum = 0
+	forall {
+	  if (ismembrane("mea")) {
+		for (x,0) sum += mea_line3_mea(x)
+	  }
+	}
+	return sum
+}
+func mea_fieldrec_line4() { local sum
+	sum = 0
+	forall {
+	  if (ismembrane("mea")) {
+		for (x,0) sum += mea_line4_mea(x)
+	  }
+	}
+	return sum
+}
+func mea_fieldrec_line5() { local sum
+	sum = 0
+	forall {
+	  if (ismembrane("mea")) {
+		for (x,0) sum += mea_line5_mea(x)
+	  }
+	}
+	return sum
+}
+func mea_fieldrec_line6() { local sum
+	sum = 0
+	forall {
+	  if (ismembrane("mea")) {
+		for (x,0) sum += mea_line6_mea(x)
+	  }
+	}
+	return sum
+}
+func mea_fieldrec_line7() { local sum
+	sum = 0
+	forall {
+	  if (ismembrane("mea")) {
+		for (x,0) sum += mea_line7_mea(x)
+	  }
+	}
+	return sum
+}
+func mea_fieldrec_line8() { local sum
+	sum = 0
+	forall {
+	  if (ismembrane("mea")) {
+		for (x,0) sum += mea_line8_mea(x)
+	  }
+	}
+	return sum
+}
+func mea_fieldrec_line9() { local sum
+	sum = 0
+	forall {
+	  if (ismembrane("mea")) {
+		for (x,0) sum += mea_line9_mea(x)
+	  }
+	}
+	return sum
+}
+func mea_fieldrec_line10() { local sum
+	sum = 0
+	forall {
+	  if (ismembrane("mea")) {
+		for (x,0) sum += mea_line10_mea(x)
+	  }
+	}
+	return sum
+}
+func mea_fieldrec_line11() { local sum
+	sum = 0
+	forall {
+	  if (ismembrane("mea")) {
+		for (x,0) sum += mea_line11_mea(x)
+	  }
+	}
+	return sum
+}
+func mea_fieldrec_line12() { local sum
+	sum = 0
+	forall {
+	  if (ismembrane("mea")) {
+		for (x,0) sum += mea_line12_mea(x)
+	  }
+	}
+	return sum
+}
+func mea_fieldrec_line13() { local sum
+	sum = 0
+	forall {
+	  if (ismembrane("mea")) {
+		for (x,0) sum += mea_line13_mea(x)
+	  }
+	}
+	return sum
+}
+func mea_fieldrec_line14() { local sum
+	sum = 0
+	forall {
+	  if (ismembrane("mea")) {
+		for (x,0) sum += mea_line14_mea(x)
+	  }
+	}
+	return sum
+}
+func mea_fieldrec_line15() { local sum
+	sum = 0
+	forall {
+	  if (ismembrane("mea")) {
+		for (x,0) sum += mea_line15_mea(x)
+	  }
+	}
+	return sum
+}
+
