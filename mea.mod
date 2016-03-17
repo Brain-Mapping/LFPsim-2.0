@@ -1,13 +1,20 @@
 : mea.mod
 
 COMMENT
-mea mod file
+LFPsim - Simulation scripts to compute Local Field Potentials (LFP) from cable compartmental models of neurons and networks implemented in NEURON simulation environment.
 
+LFPsim works reliably on biophysically detailed multi-compartmental neurons with ion channels in some or all compartments.
+
+Last updated 12-March-2016
+Developed by : Harilal Parasuram & Shyam Diwakar
+Computational Neuroscience & Neurophysiology Lab, School of Biotechnology, Amrita University, India.
+Email: harilalp@am.amrita.edu; shyam@amrita.edu
+www.amrita.edu/compneuro 
 ENDCOMMENT
 
 NEURON {
 	SUFFIX mea
-	POINTER im, first_part_line0,first_part_line1,first_part_line2,first_part_line3,first_part_line4,first_part_line5,first_part_line6,first_part_line7,first_part_line8,first_part_line9,first_part_line10,first_part_line11,first_part_line12,first_part_line13,first_part_line14,first_part_line15	
+	POINTER transmembrane_current_m, initial_part_line0,initial_part_line1,initial_part_line2,initial_part_line3,initial_part_line4,initial_part_line5,initial_part_line6,initial_part_line7,initial_part_line8,initial_part_line9,initial_part_line10,initial_part_line11,initial_part_line12,initial_part_line13,initial_part_line14,initial_part_line15	
 	RANGE mea_line0,mea_line1,mea_line2,mea_line3,mea_line4,mea_line5,mea_line6,mea_line7,mea_line8,mea_line9,mea_line10,mea_line11,mea_line12,mea_line13,mea_line14,mea_line15
 }
 
@@ -18,23 +25,23 @@ PARAMETER {
 
 ASSIGNED {
  
-	im 
-	first_part_line0
-	first_part_line1
-	first_part_line2
-	first_part_line3
-	first_part_line4
-	first_part_line5
-	first_part_line6
-	first_part_line7
-	first_part_line8
-	first_part_line9
-	first_part_line10
-	first_part_line11
-	first_part_line12
-	first_part_line13
-	first_part_line14
-	first_part_line15
+	transmembrane_current_m 
+	initial_part_line0
+	initial_part_line1
+	initial_part_line2
+	initial_part_line3
+	initial_part_line4
+	initial_part_line5
+	initial_part_line6
+	initial_part_line7
+	initial_part_line8
+	initial_part_line9
+	initial_part_line10
+	initial_part_line11
+	initial_part_line12
+	initial_part_line13
+	initial_part_line14
+	initial_part_line15
 
 	mea_line0
 	mea_line1
@@ -56,42 +63,25 @@ ASSIGNED {
 
 }
 
-INITIAL {
-	
-}
-
-
-PROCEDURE f() {	: calculation block
-
-}
-
-
 BREAKPOINT { 
 
 	:Line Source Approximation
-	mea_line0 = im * first_part_line0 * 1e3 	: 1e3 (mA to uA) : the calculated signal will be in uV
-	mea_line1 = im * first_part_line1 * 1e3 
-	mea_line2 = im * first_part_line2 * 1e3 
-	mea_line3 = im * first_part_line3 * 1e3 
-	mea_line4 = im * first_part_line4 * 1e3 
-	mea_line5 = im * first_part_line5 * 1e3 
-	mea_line6 = im * first_part_line6 * 1e3 
-	mea_line7 = im * first_part_line7 * 1e3 
-	mea_line8 = im * first_part_line8 * 1e3 
-	mea_line9 = im * first_part_line9 * 1e3 
-	mea_line10 = im * first_part_line10 * 1e3 
-	mea_line11 = im * first_part_line11 * 1e3 
-	mea_line12 = im * first_part_line12 * 1e3 
-	mea_line13 = im * first_part_line13 * 1e3 
-	mea_line14 = im * first_part_line14 * 1e3 
-	mea_line15 = im * first_part_line15 * 1e3 
+	mea_line0 = transmembrane_current_m * initial_part_line0 * 1e-1 	: 1e-1 (mA to uA) : calculated potential will be in uV
+	mea_line1 = transmembrane_current_m * initial_part_line1 * 1e-1 
+	mea_line2 = transmembrane_current_m * initial_part_line2 * 1e-1 
+	mea_line3 = transmembrane_current_m * initial_part_line3 * 1e-1 
+	mea_line4 = transmembrane_current_m * initial_part_line4 * 1e-1 
+	mea_line5 = transmembrane_current_m * initial_part_line5 * 1e-1 
+	mea_line6 = transmembrane_current_m * initial_part_line6 * 1e-1 
+	mea_line7 = transmembrane_current_m * initial_part_line7 * 1e-1 
+	mea_line8 = transmembrane_current_m * initial_part_line8 * 1e-1 
+	mea_line9 = transmembrane_current_m * initial_part_line9 * 1e-1 
+	mea_line10 = transmembrane_current_m * initial_part_line10 * 1e-1 
+	mea_line11 = transmembrane_current_m * initial_part_line11 * 1e-1 
+	mea_line12 = transmembrane_current_m * initial_part_line12 * 1e-1 
+	mea_line13 = transmembrane_current_m * initial_part_line13 * 1e-1 
+	mea_line14 = transmembrane_current_m * initial_part_line14 * 1e-1 
+	mea_line15 = transmembrane_current_m * initial_part_line15 * 1e-1 
 
-
-
-}
-
-
-AFTER SOLVE { : after each solution step
-  
 }
 

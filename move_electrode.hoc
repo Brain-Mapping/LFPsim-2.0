@@ -1,0 +1,51 @@
+/*LFPsim - Simulation scripts to compute Local Field Potentials (LFP) from cable compartmental models of neurons and networks implemented in NEURON simulation environment.
+
+LFPsim works reliably on biophysically detailed multi-compartmental neurons with ion channels in some or all compartments.
+
+Last updated 12-March-2016
+Developed by : Harilal Parasuram & Shyam Diwakar
+Computational Neuroscience & Neurophysiology Lab, School of Biotechnology, Amrita University, India.
+Email: harilalp@am.amrita.edu; shyam@amrita.edu
+www.amrita.edu/compneuro 
+*/
+
+
+// This scipt is a part of MEA electrode implementation
+// Creating object (a small compartment) to represent electrode position in shape plot (Morphology view window)
+
+create dummy
+
+objref place_Elec  
+
+proc drawelec() {
+	
+	MoveElec.point_mark_remove()
+
+	dummy {
+		pt3dclear()
+		pt3dadd($1+0.5, $2, $3, 1)
+		pt3dadd($1-0.5, $2, $3, 1)
+		place_Elec = new IClamp(0.5)
+		L = 0.001	
+	}
+	MoveElec.point_mark(place_Elec, 3)  // make it red
+	//MoveElec.mark($1,$2,"o",10,3,1)  
+	
+	MoveElec.exec_menu("View = plot") 
+	//print "set elec called"
+
+}
+
+// Funtion for setting electrode position
+proc setelec() {
+	elec_x = $1
+	elec_y = $2
+	elec_z = $3
+	
+	// Do calculation
+	//get_included_comp(xe, ye, ze)
+	drawelec(elec_x, elec_y, elec_z)
+	re_insert_elec() // re-define pointers
+}
+
+

@@ -1,21 +1,29 @@
+/*LFPsim - Simulation scripts to compute Local Field Potentials (LFP) from cable compartmental models of neurons and networks implemented in NEURON simulation environment.
+
+LFPsim works reliably on biophysically detailed multi-compartmental neurons with ion channels in some or all compartments. 
+
+Last updated 12-March-2016
+Developed by : Harilal Parasuram & Shyam Diwakar
+Computational Neuroscience & Neurophysiology Lab, School of Biotechnology, Amrita University, India.
+Email: harilalp@am.amrita.edu; shyam@amrita.edu
+www.amrita.edu/compneuro 
+*/
 
 
-
+// This scipt is a part of MEA electrode implementation, script for plotting mea traces
+// calling functions for mea calculation
 run_multi()
 
 objref mv1,mv2
 objref mh1,mh2,mh3,mh4
 
-		// codel for interface partition
-
+// script for interface partition
 mv1=new VBox()
 mv2=new VBox()
 mh1=new HBox()
 mh2=new HBox()
 mh3=new HBox()
 mh4=new HBox()
-
-
 
 objref m_e_g[16]
 
@@ -35,10 +43,7 @@ proc make_plots(){
 	m_e_g[i].exec_menu("View = plot")
 	
 	}
-	
 }
-
-
 
 
 mv1.intercept(1)
@@ -48,29 +53,29 @@ mv1.intercept(1)
 		xpanel("Control Panel")
 		xlabel("                                                  ===== Multiple electrode recording ===== ")
 		xlabel("")
-
+		//xbutton("Save Traces as MEA.dat","mea_file_write()")
 		xpanel()
 
 	mv2.intercept(0)
 	mv2.map()
 
 	mh1.intercept(1)		//row 1
-		make_plots(0,3)
+		make_plots(12,15)
 	mh1.intercept(0)
 	mh1.map()
 
 	mh2.intercept(1)		//row 2
-		make_plots(4,7)
+		make_plots(8,11)
 	mh2.intercept(0)
 	mh2.map()
 
 	mh3.intercept(1)		//row 3
-		make_plots(8,11)
+		make_plots(4,7)
 	mh3.intercept(0)
 	mh3.map()
 
 	mh4.intercept(1)		//row 3
-		make_plots(12,15)
+		make_plots(0,3)
 	mh4.intercept(0)
 	mh4.map()
 
@@ -79,3 +84,28 @@ mv1.intercept(1)
 mv1.intercept(0)
 mv1.map("LFP Simulation tool", 1, 1, 800, 800)
 
+
+
+objref f
+proc mea_file_write(){
+	f = new File()
+
+	f.wopen("LFP_traces/MEA.dat") 
+		
+	for k=0,mea_rec[0].size()-1{
+			for i=0,15{
+				f.printf("%e\t",mea_rec[i].x[k]) 
+			}
+			f.printf("\n")
+	}
+	f.close()	
+
+
+	xpanel("Simulation complete!")
+		xlabel("Traces are saved to LFP_traces directory. Run GNU Octave/Matlab script to save as .ps") 
+	xpanel(500,300)
+
+}
+
+// Calling function for writing mea traces
+mea_file_write()

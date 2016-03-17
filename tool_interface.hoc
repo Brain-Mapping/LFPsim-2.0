@@ -1,0 +1,313 @@
+/*LFPsim - Simulation scripts to compute Local Field Potentials (LFP) from cable compartmental models of neurons and networks implemented in NEURON simulation environment.
+
+LFPsim works reliably on biophysically detailed multi-compartmental neurons with ion channels in some or all compartments.
+
+Last updated 12-March-2016
+Developed by : Harilal Parasuram & Shyam Diwakar
+Computational Neuroscience & Neurophysiology Lab, School of Biotechnology, Amrita University, India.
+Email: harilalp@am.amrita.edu; shyam@amrita.edu
+www.amrita.edu/compneuro 
+*/
+
+
+// GUI for the tool is scripted in this file
+
+// Initializing variables
+objref h00,h11,h22,h33,v1,v2,v3,v4,v11,v22,v33,v44
+objref MoveElec,MoveElec_plot, g1, g2, g3  
+
+objref h44,h55,h66
+objref sl
+
+// Script for interface partition
+h00=new VBox()
+h11=new HBox()
+h22=new HBox()
+h33=new HBox()
+h44=new VBox()
+h55=new VBox()
+h66=new VBox()
+
+proc run_run(){
+	//run_control()
+	init()
+	run()
+	file_write()
+	g1.exec_menu("View = plot")
+	g2.exec_menu("View = plot")
+	g3.exec_menu("View = plot")
+}
+
+
+h00.intercept(1)
+		xpanel("Control Panel")
+		xlabel("                                                  ===== LFPsim ===== ")
+		xlabel("LFPsim allows reconstructing LFP of multi-compartmental models of neurons and microcircuits with active ion channels")
+		xlabel("Developed at Computational Neuroscience Lab, Amrita University, India.")
+		xpanel()
+
+h11.intercept(1)
+	
+	v1=new VBox()
+	v22=new VBox()
+	v33=new VBox()
+	v44=new VBox()
+	
+	//Defining Morphology view window
+	v1.intercept(1)
+		xpanel("")
+		xlabel("Morphology view window")
+		xpanel()
+
+		MoveElec = new Shape(0)
+		MoveElec.view(571.097, 572.916, 54.0667, 53.8575, 463, 88, 201.6, 200.82)
+		MoveElec.exec_menu("View = plot")
+
+		xpanel("")
+		xlabel("Voltage changes view window")
+		xpanel()
+
+		MoveElec_plot = new PlotShape(0)
+		MoveElec_plot.view(571.097, 572.916, 54.0667, 53.8575, 463, 88, 201.6, 200.82)		
+		MoveElec_plot.exec_menu("View = plot")
+		MoveElec_plot.exec_menu("Space Plot")
+		MoveElec_plot.exec_menu("Shape Plot")
+
+	v1.intercept(0)
+	v1.map("Shape plots", 1, 1, 500, 600)
+
+	//Defining LFP trace view window
+	v2=new VBox()
+	v2.intercept(1)
+		
+		h44.intercept(1)
+
+			xpanel("Reconstructed LFP", 0)
+			xlabel("                  Simulated LFP")
+			xlabel("                 ------------------")
+		
+			//xbutton("Save traces","file_write()") 
+			xlabel("Point Source Approximation")
+			
+			
+		
+			xpanel()
+
+		h44.intercept(0)
+		h44.map()
+		
+		g1 = new Graph()	
+		g1.addvar("Point_source", 1, 1, 0.8, 0.9, 2)
+		graphList[0].append(g1)
+		
+
+
+		h55.intercept(1)
+			xpanel("", 0)
+			xlabel("Line Source Approximation")
+
+			xpanel()
+		h55.intercept(0)
+		h55.map()
+
+
+
+		g2 = new Graph()	
+		g2.addvar("Line_source", 1, 1, 0.8, 0.9, 2)
+		graphList[0].append(g2)
+
+		h66.intercept(1)
+			xpanel("", 0)
+			xlabel("Simple Low-pass Filter")
+			
+			
+			xpanel()
+		h66.intercept(0)
+		h66.map()
+
+		g3 = new Graph()	
+		g3.addvar("Simple_RC_filter", 1, 1, 0.8, 0.9, 2)
+		graphList[0].append(g3)
+		
+				
+		
+	v2.intercept(0)
+	v2.map("Shape plots", 1, 1, 400, 500)
+
+	//Defining electrode parameter setting pannel and simulation control
+	v3=new VBox()
+	v3.intercept(1)
+	
+		xpanel("Extracellular Electrode Location", 0)
+		xlabel("Set Extracellular Single Electrode Location")
+		xlabel("============================================")
+		xlabel("Move the electrode by changing X,Y,Z")
+		xlabel("X,Y,Z coordinates are in um")
+		xvalue("X", "elec_x", 1, "setelec(elec_x,elec_y,elec_z)", 0, 1)
+		xvalue("Y", "elec_y", 1, "setelec(elec_x,elec_y,elec_z)", 0, 1)
+		xvalue("Z", "elec_z", 1, "setelec(elec_x,elec_y,elec_z)", 0, 1)
+		xlabel("")
+		xlabel("To interactively move the electrode, move the mouse pointer on ")
+		xlabel("\"Morphology view\" window and right click on the plot then")
+		xlabel("select \"LFP_electrode\" and move the mouse pointer")
+		xlabel("to change electrode position and click the location on the plot")
+		xlabel("to record extracellular potential.")
+
+		xbutton("Run single electrode simulation and Save tarces","run_control()")
+
+
+		xlabel("")
+		xlabel("Simulating Multi Electrode Array (MEA)")
+		xlabel("===============================================")
+
+	
+		xlabel("MEA reconstruction of extracellular potential allows to study extracellular")
+		xlabel("current dynamics at variouse location in the extracellular medium.")
+		xlabel("")
+		xbutton("Set Multiple_Electrode","multi_electrode_panel()")
+		xbutton("Run MEA simulation","run_multi_button()")
+		xlabel("")
+		xlabel("")
+
+		xbutton("Definitions","extra_definition()")
+		xlabel("Set Extracellular Medium Properties")
+		xlabel("===================================")
+		xlabel("Any changes to these parameters will reflect in all compartments")
+		xlabel("in the model.")	
+		xlabel("Extracellular Capacitance (in uF / cm2)")
+		xvalue("xc[0] (Layer 1)", "local_xc_0", 1, "change_local_xc_0(local_xc_0)", 0, 1)
+		xvalue("xc[1] (Layer 2)", "local_xc_1", 1, "change_local_xc_1(local_xc_1)", 0, 1)
+
+		xlabel("")
+		xlabel("Extracellular Conductance (in mhn/cm2)")
+		xvalue("xg[0] (Layer 1)", "local_xg_0", 1, "change_local_xg_0(local_xc_0)", 0, 1)
+		xvalue("xg[1] (Layer 2)", "local_xg_1", 1, "change_local_xg_1(local_xc_1)", 0, 1)
+		xlabel("")
+
+		xlabel("Extracellular axial resistance (in uF / cm2)")
+		xvalue("xraxial[0] (Layer 1)", "local_xraxial_0", 1, "change_local_xraxial_0(local_xraxial_0)", 0, 1)
+		xvalue("xraxial[1] (Layer 2)", "local_xraxial_1", 1, "change_local_xraxial_1(local_xraxial_1)", 0, 1)
+		xpanel()
+		
+		
+
+		setelec(elec_x,elec_y,elec_z)	
+			
+
+		//h22.intercept(0)
+		//h22.map()
+
+		
+	v3.intercept(0)
+	v3.map()
+
+
+h11.intercept(0)
+h11.map()
+
+h00.intercept(0)
+h00.map("LFP Simulation tool", 1, 1, 1200, 800)
+
+
+
+// multi electrode panel
+proc multi_electrode_panel(){
+
+		place_mea_electrode = 1
+
+		xopen("multiple_electrode1.hoc")
+		xpanel("Multi Electrode Panel")
+		xlabel("                  Multi Electrode Panel")
+		xlabel("                  ==================")
+		xlabel("")
+
+		//xlabel("Enter starting X,Y,Z coordinates of 4x4 electrode array")
+		//xvalue("X", "mul_start_point_x", 1, "set_multi_electrode(mul_start_point_x,mul_start_point_y,mul_start_point_z,mul_elec_distance)", 0, 1)
+		//xvalue("Y", "mul_start_point_y", 1, "set_multi_electrode(mul_start_point_x,mul_start_point_y,mul_start_point_z,mul_elec_distance)", 0, 1)
+		//xvalue("Z", "mul_start_point_z", 1, "set_multi_electrode(mul_start_point_x,mul_start_point_y,mul_start_point_z,mul_elec_distance)", 0, 1)
+
+		xlabel("By default the electrodes will be placed on z plane")
+		xlabel("For electrodes on z plane, plane=3")
+		xlabel("For electrodes on y plane, plane=2")
+		xlabel("For electrodes on x plane, plane=1")
+		xvalue("plane", "plane", 1,"", 0, 1)
+		xlabel("")
+
+		xvalue("Distance between electrodes", "mul_elec_distance", 1, "set_multi_electrode(mul_start_point_x,mul_start_point_y,mul_start_point_z,mul_elec_distance)", 0, 1)
+		xbutton("Place the electrodes","multi_electrode()")
+
+		xpanel(500,300)
+
+}
+
+
+// Defining NEURON's extracellular mechanism
+proc extra_definition(){
+
+	xpanel("NEURON's Extracellular mechanism")
+	xlabel("NEURON's extracellular mechanism adds two layers of extracellular field to the section. Vext is solved simultaneously with the v.")
+	xlabel("When the extracellular mechanism is present, v refers to the membrane potential and vext (i.e. vext[0])")
+	xlabel("refers to the extracellular potential just next to the membrane. ")
+	xlabel("")
+	xlabel("")
+	xlabel("")
+	xlabel("          Ra")
+	xlabel("o/`--o--'\/\/`--o--'\/\/`--o--'\/\/`--o--'\o vext + v")
+	xlabel("     |          |          |          |")
+	xlabel("    ---        ---        ---        ---")
+	xlabel("   |   |      |   |      |   |      |   |")
+	xlabel("    ---        ---        ---        ---")
+	xlabel("     |          |          |          | ")
+	xlabel("     |          |          |          |     i_membrane")
+	xlabel("     |  xraxial |          |          |")
+	xlabel(" /`--o--'\/\/`--o--'\/\/`--o--'\/\/`--o--'\ vext")
+	xlabel("     |          |          |          |")
+	xlabel("    ---        ---        ---        ---     xc and xg")
+	xlabel("   |   |      |   |      |   |      |   |    in  parallel")
+	xlabel("    ---        ---        ---        ---")
+	xlabel("     |          |          |          | ")
+	xlabel("     |          |          |          |")
+	xlabel("     |xraxial[1]|          |          | ")
+	xlabel(" /`--o--'\/\/`--o--'\/\/`--o--'\/\/`--o--'\ vext[1]")
+	xlabel("     |          |          |          |")
+	xlabel("    ---        ---        ---        ---     the series xg[1], e_extracellular")
+	xlabel("   |   |      |   |      |   |      |   |    combination is in parallel with")
+	xlabel("   |  ---     |  ---     |  ---     |  ---   the xc[1] capacitance. This is")
+	xlabel("   |   -      |   -      |   -      |   -    identical to a membrane with")
+	xlabel("    ---        ---        ---        ---     cm, g_pas, e_pas")
+	xlabel("     |          |          |          |")
+	xlabel("-------------------------------------------- ground")
+
+	xpanel(500,300)
+
+}
+
+// Run pannel for LFP simulation
+proc run_control(){
+
+		xpanel("Simulation Control")
+		xvalue("Init","v_init", 1,"stdinit()", 1, 1 )
+		xbutton("Run","run_run()")
+		xbutton("Stop","stoprun=1")
+		xvalue("t","t", 2 )
+		xvalue("Tstop","tstop", 1,"tstop_changed()", 0, 1 )
+		xvalue("dt","dt", 1,"setdt()", 0, 1 )
+		xvalue("Real Time","realtime", 0,"", 0, 1 )
+		xpanel(900,300)
+
+}
+
+// Run pannel for MEA simulation
+proc mea_run_control(){
+
+		xpanel("Simulation Control")
+		xvalue("Init","v_init", 1,"stdinit()", 1, 1 )
+		xbutton("Run","xopen(\"mea_run_then_plot.hoc\")")
+		xbutton("Stop","stoprun=1")
+		xvalue("t","t", 2 )
+		xvalue("Tstop","tstop", 1,"tstop_changed()", 0, 1 )
+		xvalue("dt","dt", 1,"setdt()", 0, 1 )
+		xvalue("Real Time","realtime", 0,"", 0, 1 )
+		xpanel(900,300)
+
+}

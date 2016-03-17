@@ -1,3 +1,18 @@
+/*LFPsim - Simulation scripts to compute Local Field Potentials (LFP) from cable compartmental models of neurons and networks implemented in NEURON simulation environment.
+
+LFPsim works reliably on biophysically detailed multi-compartmental neurons with ion channels in some or all compartments.
+
+Last updated 12-March-2016
+Developed by : Harilal Parasuram & Shyam Diwakar
+Computational Neuroscience & Neurophysiology Lab, School of Biotechnology, Amrita University, India.
+Email: harilalp@am.amrita.edu; shyam@amrita.edu
+www.amrita.edu/compneuro 
+*/
+
+
+// This scipt is a part of "MEA" electrode implementation
+// Function to calculate mea field potential for (4*4) 16 electrode location
+
 func mea_fieldrec_line0() { local sum
 	sum = 0
 	forall {

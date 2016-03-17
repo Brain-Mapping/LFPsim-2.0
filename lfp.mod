@@ -1,61 +1,49 @@
 : lfp.mod
 
 COMMENT
-lfp mod file
+LFPsim - Simulation scripts to compute Local Field Potentials (LFP) from cable compartmental models of neurons and networks implemented in NEURON simulation environment.
 
+LFPsim works reliably on biophysically detailed multi-compartmental neurons with ion channels in some or all compartments.
+
+Last updated 12-March-2016
+Developed by : Harilal Parasuram & Shyam Diwakar
+Computational Neuroscience & Neurophysiology Lab, School of Biotechnology, Amrita University, India.
+Email: harilalp@am.amrita.edu; shyam@amrita.edu
+www.amrita.edu/compneuro 
 ENDCOMMENT
 
 NEURON {
 	SUFFIX lfp
-	POINTER im, first_part_line, first_part_point, vvext, first_part_RC 
-	RANGE lfp_line,lfp_point,lfp_RC
+	POINTER transmembrane_current, initial_part_line, initial_part_point, initial_part_rc
+	RANGE lfp_line,lfp_point,lfp_rc
 	
 }
 
-PARAMETER {
-	: default values put here
-
-	}
 
 ASSIGNED {
 
-	first_part_line 
-	first_part_RC
-	im 
+	initial_part_line 
+	initial_part_rc
+	transmembrane_current 
 	lfp_line
 	lfp_point
-	lfp_RC
-	first_part_point
-	vvext
+	lfp_rc
+	initial_part_point
 
 
 }
-
-INITIAL {
-	
-}
-
-
-PROCEDURE f() {	: calculation block
-
-}
-
 
 BREAKPOINT { 
 
 	:Point Source Approximation 	
-	lfp_point =   im * first_part_point  * 1e3 : 1e3 (mA to uA) So the calculated signal will be in uV
+	lfp_point =   transmembrane_current * initial_part_point * 1e-1   : So the calculated signal will be in nV
 
 	:Line Source Approximation
-	lfp_line =   im * first_part_line  * 1e3 : 1e3 (mA to uA) : the calculated signal will be in uV
+	lfp_line =   transmembrane_current * initial_part_line  * 1e-1  : So the calculated signal will be in nV
 
 	:RC
-	lfp_RC =   im * first_part_RC * 1e-1 : 1e6 (F to uF) * 1e3 (mA to uA) * 1e-2 (m to um) So the calculated signal will be in uV
+	lfp_rc =   transmembrane_current * initial_part_rc * 1e-3 : So the calculated signal will be in nV
 
 }
 
-
-AFTER SOLVE { : after each solution step
-  
-}
 

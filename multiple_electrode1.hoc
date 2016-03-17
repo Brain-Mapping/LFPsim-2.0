@@ -1,0 +1,66 @@
+/*LFPsim - Simulation scripts to compute Local Field Potentials (LFP) from cable compartmental models of neurons and networks implemented in NEURON simulation environment.
+
+LFPsim works reliably on biophysically detailed multi-compartmental neurons with ion channels in some or all compartments.
+
+Last updated 12-March-2016
+Developed by : Harilal Parasuram & Shyam Diwakar
+Computational Neuroscience & Neurophysiology Lab, School of Biotechnology, Amrita University, India.
+Email: harilalp@am.amrita.edu; shyam@amrita.edu
+www.amrita.edu/compneuro 
+*/
+
+
+// This scipt is a part of MEA electrode implementation
+// Creating object (a small compartment) to represent electrode position in shape plot (Morphology view window), for mea simulation
+
+objref place_Elec_m[16]
+create dummyy[16]
+countt = 0
+
+proc multi_drawelec() {
+	
+	dummyy[countt] {
+		pt3dclear()
+		pt3dadd($1+0.5, $2, $3, 1)
+		pt3dadd($1-0.5, $2, $3, 1)
+		place_Elec_m[countt] = new IClamp(0.5)
+		L = 0.001	
+	}
+	MoveElec.point_mark(place_Elec_m[countt], 2)  // mark it red
+	MoveElec.exec_menu("View = plot") 
+	
+	countt = countt + 1
+}
+
+// Funtion for setting electrode position
+proc multi_setelec() {
+	//MoveElec = new Shape(0) 
+	multi_drawelec($1, $2, $3)
+}
+
+//Defalut x,y,z position of first electrode in MEA  
+mul_start_point_x = -100
+mul_start_point_y = -100
+mul_start_point_z = 1
+
+//Defalut distance between MEA electrodes
+mul_elec_distance = 100
+plane=3
+
+// Procedure to set MEA electrode position
+proc set_multi_electrode(){
+	mul_start_point_x = $1
+	mul_start_point_y = $2
+	mul_start_point_z = $3
+	mul_elec_distance = $4
+
+}
+
+// Procedure to set MEA electrode position
+proc multi_electrode(){
+	countt = 0
+	MoveElec.point_mark_remove()
+	xopen("multiple_electrode.hoc")
+	
+}
+

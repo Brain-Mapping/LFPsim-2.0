@@ -1,36 +1,47 @@
-/*This LFP simulation tool helps to calculate the LFP of any biophysically detailed model of neuron implemented in NEURON which is widely available at Model DB. This tool is developed by Harilal Parasuram at Shyam Diwakar's lab at Amrita University, India.
+/*LFPsim - Simulation scripts to compute Local Field Potentials (LFP) from cable compartmental models of neurons and networks implemented in NEURON simulation environment.
+
+LFPsim works reliably on biophysically detailed multi-compartmental neurons with ion channels in some or all compartments.
+
+Last updated 12-March-2016
+Developed by : Harilal Parasuram & Shyam Diwakar
+Computational Neuroscience & Neurophysiology Lab, School of Biotechnology, Amrita University, India.
+Email: harilalp@am.amrita.edu; shyam@amrita.edu
+www.amrita.edu/compneuro 
 */
 
 
-
-//Electrode position
+//Set default electrode position
 elec_x = -100
 elec_y = 50
-elec_z = 1
+elec_z = 0
+place_mea_electrode = 0
 
 
 objref MoveElec  
+MoveElec = new Shape(0)  // Created morphology view plot, didn't map it to the screen
 
-MoveElec = new Shape(0)  // create it but don't map it to the screen yet
 
-
-forall{
-
+forall if (!issection(".*dummy.*")){	// Inserting extracellular electrode to all compartments and setting extracellular medium parameters
+	if (!issection(".*myelin.*")){
+	if (!issection(".*node.*")){
+	if (!issection(".*branch.*")){
 	insert extracellular
 	insert lfp
 	
-	local_xc_0 = xc[0] 
+	local_xc_0 = xc[0] // extracellular capacitance
 	local_xc_1 = xc[1] 
 
-	local_xg_0 = xg[0]
+	local_xg_0 = xg[0] // extracellular conductance
 	local_xg_1 = xg[1]
 
-	local_xraxial_0 = xraxial[0]
+	local_xraxial_0 = xraxial[0] // extracellular axial resistance
 	local_xraxial_1 = xraxial[1]
-	
+    	}
+	}
+	}
 }
-	
 
+// Procedure to update extracellular medium parameters from UI
 proc change_local_xc_0(){
 
 	forall{
@@ -79,35 +90,48 @@ proc change_local_xraxial_1(){
 }
 
 
+// Procedure for computing LFP via three schema, Point Source Approximation(PSA), Line Source Approximation (LSA), RC filter methods. 
+
 
 proc re_insert_elec(){
 
-	
 	forall {    
 
 	    if (ismembrane("lfp")) {	
 		x = (x3d(0) + x3d(1)) / 2 
 		y = (y3d(0) + y3d(1)) / 2 
 		z = (z3d(0) + z3d(1)) / 2 
+	
+		sigma = 0.3
 
+		if(elec_x==elec_y==elec_z==0){
+			elec_z=1
+		}
 
 		dis = sqrt( ((elec_x - x)*(elec_x - x)) + ((elec_y - y)*(elec_y - y)) + ((elec_z - z)*(elec_z - z)))
-		point_part1 = (0.354 / (4 * 3.141 * dis))
+
+		if(dis<(diam/2)){ // setting radius limit
+					dis = (diam/2) + 0.1
+
+		}
+		point_part1 = (1 / (4 * 3.141 * dis * sigma)) * area(0.5)
 
 
 		//calculate length of the compartment
-	
-		sigma = 0.354
-
-		//dist_comp = sqrt( ((x1 - x0)*(x1 - x0)) + ((y1 - y0)*(y1 - y0)) + ((z1 - z0)*(z1 - z0)))
 		dist_comp = sqrt( ((x3d(1) - x3d(0))*(x3d(1) - x3d(0))) + ((y3d(1) - y3d(0))*(y3d(1) - y3d(0))) + ((z3d(1) - z3d(0))*(z3d(1) - z3d(0))))
-
 
 		dist_comp_x = (x3d(1) - x3d(0)) //* 1e-6
 		dist_comp_y = (y3d(1) - y3d(0)) //* 1e-6
 		dist_comp_z = (z3d(1) - z3d(0)) //* 1e-6
 
 		sum_dist_comp = sqrt((dist_comp_x*dist_comp_x) + (dist_comp_y*dist_comp_y) + (dist_comp_z*dist_comp_z))
+
+		//print "sum_dist_comp=",sum_dist_comp, secname(), area(0.5)
+
+		if(sum_dist_comp<(diam/2)){ // setting radius limit
+					sum_dist_comp = (diam/2) + 0.1
+
+		}
 
 		long_dist_x = (elec_x- x3d(1))
 		long_dist_y = (elec_y- y3d(1))
@@ -142,35 +166,25 @@ proc re_insert_elec(){
 		}
 
 
-		first_part_l = (1*sigma)/(4*PI*sum_dist_comp) * phi
-
-
-		//first_part=1/(4*PI*sigma)
-		//second_part=I_segs/sum_dist_comp*phi     // should go in mod file 
-		//final_phi = first_part * second_part
-
+		line_part1 = 1/(4*PI*sum_dist_comp*sigma) * phi * area(0.5)
 
 
 		// RC algorithm implementation
-
-		permitivity = 72.3 //1e6 (F to uF) * 1e-2 (m to cm) So the calculated signal will be in uV
-		//0.57525  
-		RC = sigma * permitivity
-		
+		capa = 1 // set to specific capacitance, Johnston and Wu 1995
+		RC = sigma * capa
 	
 		time_const = dis / 240 // velo um/ms  // Nauhaus et al, 2009 calculated the propagation speed on average, 0.24 ± 0.20 m/s in monkeys and 0.31 ± 0.23 m/s in cats (mean ± s.d.) ie, 240 um/ms
-		first_part_rc =  exp(-1 *(time_const/RC))
+		rc_part1 =  exp(-1 *(time_const/RC)) * area(0.5)
 
 		for (x, 0) {
 		
-			setpointer vvext_lfp(x), vext[0](x)
-			setpointer im_lfp(x), i_membrane(x)
+			setpointer transmembrane_current_lfp(x), i_membrane(x)
 
-			setpointer first_part_point_lfp(x), point_part1
+			setpointer initial_part_point_lfp(x), point_part1
 
-			setpointer first_part_line_lfp(x), first_part_l
+			setpointer initial_part_line_lfp(x), line_part1
 
-			setpointer first_part_RC_lfp(x), first_part_rc
+			setpointer initial_part_rc_lfp(x), rc_part1
 						
 				
 		}
@@ -183,25 +197,23 @@ proc re_insert_elec(){
 }
 
 
-vrec = 0  // extracellularly recorded potential
-
+vrec = 0 
+// function to sum field potential calculated for PSA schema
 func fieldrec_point() { local sum
 	sum = 0
 	forall {
 	  if (ismembrane("lfp")) {
-		// avoid nodes at 0 and 1 ends, which shouldn't make any contribution
 		for (x,0) sum += lfp_point_lfp(x)
 	  }
 	}
 	return sum
 }
 
-
+// function to sum field potential calculated for LSA schema
 func fieldrec_line() { local sum
 	sum = 0
 	forall {
 	  if (ismembrane("lfp")) {
-		// avoid nodes at 0 and 1 ends, which shouldn't make any contribution
 		for (x,0) sum += lfp_line_lfp(x)
 	  }
 	}
@@ -209,77 +221,81 @@ func fieldrec_line() { local sum
 }
 
 
-
+// function to sum field potential calculated for RC filter schema
 func fieldrec_RC() { local sum
 	sum = 0
 	forall {
 	  if (ismembrane("lfp")) {
-		// avoid nodes at 0 and 1 ends, which shouldn't make any contribution
-		for (x,0) sum += lfp_RC_lfp(x)
+		for (x,0) sum += lfp_rc_lfp(x)
 	  }
 	}
 	return sum
 }
 
 
-
-
-
-proc init() {
+proc init() { // Initializing all variables
         finitialize(v_init)
         fcurrent()
-	vrec_point = fieldrec_point()
-	vrec_line = fieldrec_line()
-	vrec_RC = fieldrec_RC()
+	Point_source = fieldrec_point()
+	Line_source = fieldrec_line()
+	Simple_RC_filter = fieldrec_RC()
 }
 
 proc advance() {
         fadvance()
-	vrec_point = fieldrec_point()
-	vrec_line = fieldrec_line()
-	vrec_RC = fieldrec_RC()
+	Point_source = fieldrec_point()
+	Line_source = fieldrec_line()
+	Simple_RC_filter = fieldrec_RC()
 }
 
+//Recording summed LFP using NEURON's record function
 objref total_lfp
 total_lfp = new Vector()
-total_lfp.record(&vrec_line)
+total_lfp.record(&Line_source)
 
 
 objref total_point
 total_point = new Vector()
-total_point.record(&vrec_point)
+total_point.record(&Point_source)
 
 objref total_RC
 total_RC = new Vector()
-total_RC.record(&vrec_RC)
+total_RC.record(&Simple_RC_filter)
 
 
+xopen("move_electrode.hoc")
 
+// Initializing tool interface 
+xopen("tool_interface.hoc")
 
+// Funtion to display electrode position
 func change_electrode_pos() {
 	
 	if($1 == 2) {
 		
-		setelec($2, $3, -2)	
+		setelec($2, $3, 0)	
 		//drawelec($2, $3, 0)
-		//positions[0].append($2)
-		//positions[1].append($3)
 		print "x, y = ",$2,$3	
 	}				
 	
-	run_run()
 	return (0)
 	
 }	
 
 
+/*Single electrode location may be set both manually and interactively. To set manually, the user needs to provide values for x,y,z of electrode location in panel D. Interactive LFP electrode implemented using NEURON's menu tool. To access this funtionality, the user needs to move the mouse pointer on "Morphology view" window and right click on the plot, then select "LFP_electrode" and move mouse pointer to move electrode and click on the point on the plot area to record the extracellular potential from that point.
+*/
+
 MoveElec.menu_tool("LFP_electrode", "change_electrode_pos","1")
 
+
+
+// Write the calculated LFP as files in "LFP_traces" directory
 objref f
 proc file_write(){
 	f = new File()
 
-	f.wopen("line.txt") 
+	f.wopen("LFP_traces/Line_source.dat") 
 		for i=0, total_lfp.size()-1 { 
 
 			f.printf("%e",total_lfp.x[i]) 
@@ -289,7 +305,7 @@ proc file_write(){
 
 
 
-	f.wopen("point.txt") 
+	f.wopen("LFP_traces/Point_source.dat") 
 		for i=0, total_point.size()-1 { 
 
 			f.printf("%e",total_point.x[i]) 
@@ -298,26 +314,30 @@ proc file_write(){
 	f.close()
 
 
-	f.wopen("rc.txt") 
+	f.wopen("LFP_traces/RC.dat") 
 		for i=0, total_RC.size()-1 { 
 
 			f.printf("%e",total_RC.x[i]) 
 			f.printf("\n")
 		}
 	f.close()
-	
+	xpanel("Simulation complete!", 0)
+	xlabel("Traces are saved to LFP_traces directory. Run GNU Octave/Matlab scripts to save as .ps for later use.")
+	xpanel(494,468)
 }
 
 
-//run_run()
+// Funtion to set electrode location for Multi Electrode Array simualtion (MEA)
+proc run_multi_button(){
 
+	if (place_mea_electrode == 1){
+		mea_run_control()
+		
+	}else{
+		xpanel("")
+		xlabel("Please set electrode location by clicking on \"Set Multiple Electrodes\". Run MEA simulation!")
+		xpanel(494,468)
 
-
-
-
-
-	
-
-
-
+	}
+}
 

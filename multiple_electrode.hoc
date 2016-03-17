@@ -1,0 +1,351 @@
+/*LFPsim - Simulation scripts to compute Local Field Potentials (LFP) from cable compartmental models of neurons and networks implemented in NEURON simulation environment.
+
+LFPsim works reliably on biophysically detailed multi-compartmental neurons with ion channels in some or all compartments.
+
+Last updated 12-March-2016
+Developed by : Harilal Parasuram & Shyam Diwakar
+Computational Neuroscience & Neurophysiology Lab, School of Biotechnology, Amrita University, India.
+Email: harilalp@am.amrita.edu; shyam@amrita.edu
+www.amrita.edu/compneuro 
+*/
+
+
+// This scipt is a part of MEA electrode implementation
+
+//Deleting already existing dummy compartment (electrode position) 
+if (section_exists("dummy")){
+
+	access dummy
+	delete_section() 
+}
+
+
+// Inserting extracellular and MEA electrode to all compartments
+forall if (!issection(".*dummy.*")){	// Inserting extracellular electrode to all compartments and setting extracellular medium parameters
+	if (!issection(".*myelin.*")){
+	if (!issection(".*node.*")){
+	if (!issection(".*branch.*")){
+	insert extracellular    
+	insert mea
+}
+}
+}
+}
+
+// Initializing variables and functions for MEA calculation
+objref mul_elec_x,mul_elec_y,mul_elec_z
+
+mul_elec_x = new Vector()
+mul_elec_x = new Vector()
+mul_elec_x = new Vector()
+
+
+Num_of_colum = 4
+Num_of_row = 4
+
+
+objref mul_x,mul_y,mul_z
+mul_x = new Vector()
+mul_y = new Vector()
+mul_z = new Vector()
+
+
+// Procedure to calculate MEA electrode position, this function detects NEURON model and places MEA electrodes in the vicinity 
+proc auto_calc_mea_positions(){
+
+
+	forall{ 
+		if (issection(".*soma.*")){ //allowing only soma 
+			xx_low = ((x3d(0)+x3d(1))/2)
+			yy_low = ((y3d(0)+y3d(1))/2)
+			zz_low = ((z3d(0)+z3d(1))/2)
+
+			xx_high = ((x3d(0)+x3d(1))/2)
+			yy_high = ((y3d(0)+y3d(1))/2)
+			zz_high = ((z3d(0)+z3d(1))/2)
+			break
+		}
+	}		
+
+
+	forall{ 
+		if (issection(".*soma.*")){ //allowing only soma 
+			//print secname()
+
+		
+			/*x = (x3d(0) + x3d(1)) / 2
+			y = (y3d(0) + y3d(1)) / 2 
+			z = (z3d(0) + z3d(1)) / 2*/ 
+
+			if (((x3d(0)+x3d(1))/2) < xx_low) {
+				xx_low = ((x3d(0)+x3d(1))/2)
+				print "xx_low=",xx_low
+			}
+
+			if (((y3d(0)+y3d(1))/2) < yy_low) {
+				yy_low = ((y3d(0)+y3d(1))/2)
+			}
+
+			if (((z3d(0)+z3d(1))/2) < zz_low) {
+				zz_low = ((z3d(0)+z3d(1))/2)
+			}
+
+
+
+			if (((x3d(0)+x3d(1))/2) > xx_high) {
+				xx_high = ((x3d(0)+x3d(1))/2)
+			}
+
+			if (((y3d(0)+y3d(1))/2) > yy_high) {
+				yy_high = ((y3d(0)+y3d(1))/2)
+			}
+
+			if (((z3d(0)+z3d(1))/2) > zz_high) {
+				zz_high = ((z3d(0)+z3d(1))/2)
+			}
+
+
+		}
+	}
+}
+
+//calling auto detect function
+auto_calc_mea_positions()
+
+//Setting mea electrode position
+mul_start_point_x = ((xx_low+xx_high)/2) -  (2 * mul_elec_distance) + (mul_elec_distance/2) 
+mul_start_point_y = ((yy_low+yy_high)/2) -  (2 * mul_elec_distance) + (mul_elec_distance/2)
+mul_start_point_z = (zz_low+zz_high)/2
+
+print "plane=",plane
+
+// Script for shifting MEA electrodes to other planes
+for (j = mul_start_point_y;j< (Num_of_row * mul_elec_distance) + mul_start_point_y;j = j + mul_elec_distance){
+	for (i = mul_start_point_x; i<(Num_of_colum * mul_elec_distance) + mul_start_point_x; i = i + mul_elec_distance){	
+
+
+		if (plane == 1){	//electrodes in x plane
+			multi_setelec(mul_start_point_z,j,i) // for marking electrode position
+			mul_x.append(mul_start_point_z)
+			mul_y.append(j)
+			mul_z.append(i)
+		
+		}
+		if (plane == 2){	//electrodes in y plane
+			multi_setelec(i,mul_start_point_z,j) // for marking electrode position
+			mul_x.append(i)
+			mul_y.append(mul_start_point_z)
+			mul_z.append(j)
+
+
+		}
+		if (plane == 3){	//electrodes in z plane
+
+			multi_setelec(i,j,mul_start_point_z) // for marking electrode position
+			mul_x.append(i)
+			mul_y.append(j)
+			mul_z.append(mul_start_point_z)
+		}
+	}
+
+}
+
+
+// Funtion for calculating MEA LFP traces
+func template_mea(){
+		/*
+		long_dist_x,$1
+		long_dist_y,$2
+		long_dist_z,$3
+		sum_dist_comp,$4
+		dist_comp,$5
+		dist_comp_x,$6
+		dist_comp_y,$7
+		dist_comp_z,$8
+		*/
+
+		sum_HH = ($1 * $6) + ($2 * $7) + ($3 * $8)
+				
+		final_sum_HH = sum_HH / $4
+
+		sum_temp1 = ($1*$1) + ($2*$2) + ($3*$3)
+		r_sq = sum_temp1 -(final_sum_HH * final_sum_HH)
+			
+		Length_vector = final_sum_HH + $4
+							
+
+
+		if ((final_sum_HH<0)&&(Length_vector<=0)){
+
+
+			phi=log((sqrt((final_sum_HH*final_sum_HH) + r_sq) - final_sum_HH)/(sqrt((Length_vector*Length_vector)+r_sq)-Length_vector))
+
+
+		}else if((final_sum_HH>0)&&(Length_vector>0)){
+
+			
+			phi=log((sqrt((Length_vector*Length_vector)+r_sq) + Length_vector)/(sqrt((final_sum_HH*final_sum_HH)+r_sq) + final_sum_HH))
+			
+		}else{
+
+			phi=log(((sqrt((Length_vector*Length_vector)+r_sq)+Length_vector) * (sqrt((final_sum_HH*final_sum_HH)+r_sq)-final_sum_HH))/r_sq)
+						
+		}
+
+
+		initial_part_l = (1)/(4*PI*$4*sigma) * phi
+		return initial_part_l
+
+}
+
+
+objref initial_part_line
+initial_part_line = new Vector()
+
+
+// Setting MEA electrode position and pointing each electrode to respective pointer in mea.mod
+proc set_electrode(){
+
+forall {    
+
+	    if (ismembrane("mea")) {	
+		x = (x3d(0) + x3d(1)) / 2 
+		y = (y3d(0) + y3d(1)) / 2 
+		z = (z3d(0) + z3d(1)) / 2 
+
+		//calculate length of the compartment
+	
+		
+		dist_comp = sqrt( ((x3d(1) - x3d(0))*(x3d(1) - x3d(0))) + ((y3d(1) - y3d(0))*(y3d(1) - y3d(0))) + ((z3d(1) - z3d(0))*(z3d(1) - z3d(0))))
+		dist_comp_x = (x3d(1) - x3d(0)) //* 1e-6
+		dist_comp_y = (y3d(1) - y3d(0)) //* 1e-6
+		dist_comp_z = (z3d(1) - z3d(0)) //* 1e-6
+
+		sum_dist_comp = sqrt((dist_comp_x*dist_comp_x) + (dist_comp_y*dist_comp_y) + (dist_comp_z*dist_comp_z))
+
+
+		if(sum_dist_comp<(diam/2)){ // setting radius limit
+					sum_dist_comp = (diam/2) + 0.1
+
+		}
+		for ee=0,15{
+				
+			long_dist_x = (mul_x.x[ee] - x3d(1))
+			long_dist_y = (mul_y.x[ee] - y3d(1))
+			long_dist_z = (mul_z.x[ee] - z3d(1))
+			val = template_mea(long_dist_x,long_dist_y,long_dist_z,sum_dist_comp,dist_comp,dist_comp_x,dist_comp_y,dist_comp_z)
+			initial_part_line.append(val*area(0.5))
+
+		}	
+	
+
+		for (x, 0) {
+		
+		
+			setpointer transmembrane_current_m_mea(x), i_membrane(x)
+
+			setpointer initial_part_line0_mea(x), initial_part_line.x[0] 
+			setpointer initial_part_line1_mea(x), initial_part_line.x[1] 
+			setpointer initial_part_line2_mea(x), initial_part_line.x[2] 
+			setpointer initial_part_line3_mea(x), initial_part_line.x[3] 
+			setpointer initial_part_line4_mea(x), initial_part_line.x[4] 
+			setpointer initial_part_line5_mea(x), initial_part_line.x[5] 
+			setpointer initial_part_line6_mea(x), initial_part_line.x[6] 
+			setpointer initial_part_line7_mea(x), initial_part_line.x[7] 
+			setpointer initial_part_line8_mea(x), initial_part_line.x[8] 
+			setpointer initial_part_line9_mea(x), initial_part_line.x[9] 
+			setpointer initial_part_line10_mea(x), initial_part_line.x[10] 
+			setpointer initial_part_line11_mea(x), initial_part_line.x[11] 
+			setpointer initial_part_line12_mea(x), initial_part_line.x[12] 
+			setpointer initial_part_line13_mea(x), initial_part_line.x[13] 
+			setpointer initial_part_line14_mea(x), initial_part_line.x[14] 
+			setpointer initial_part_line15_mea(x), initial_part_line.x[15]
+	
+							
+		}
+
+	    }
+	}
+
+}
+
+
+set_electrode()
+xopen("mea_field_sum.hoc")
+
+//Initializing vectors
+proc init() {
+        finitialize(v_init)
+        fcurrent()
+	mea_line0 = mea_fieldrec_line0()
+	mea_line1 = mea_fieldrec_line1()
+	mea_line2 = mea_fieldrec_line2()
+	mea_line3 = mea_fieldrec_line3()
+	mea_line4 = mea_fieldrec_line4()
+	mea_line5 = mea_fieldrec_line5()
+	mea_line6 = mea_fieldrec_line6()
+	mea_line7 = mea_fieldrec_line7()
+	mea_line8 = mea_fieldrec_line8()
+	mea_line9 = mea_fieldrec_line9()
+	mea_line10 = mea_fieldrec_line10()
+	mea_line11 = mea_fieldrec_line11()
+	mea_line12 = mea_fieldrec_line12()
+	mea_line13 = mea_fieldrec_line13()
+	mea_line14 = mea_fieldrec_line14()
+	mea_line15 = mea_fieldrec_line15()
+}
+
+proc advance() {
+        fadvance()
+	mea_line0 = mea_fieldrec_line0()
+	mea_line1 = mea_fieldrec_line1()
+	mea_line2 = mea_fieldrec_line2()
+	mea_line3 = mea_fieldrec_line3()
+	mea_line4 = mea_fieldrec_line4()
+	mea_line5 = mea_fieldrec_line5()
+	mea_line6 = mea_fieldrec_line6()
+	mea_line7 = mea_fieldrec_line7()
+	mea_line8 = mea_fieldrec_line8()
+	mea_line9 = mea_fieldrec_line9()
+	mea_line10 = mea_fieldrec_line10()
+	mea_line11 = mea_fieldrec_line11()
+	mea_line12 = mea_fieldrec_line12()
+	mea_line13 = mea_fieldrec_line13()
+	mea_line14 = mea_fieldrec_line14()
+	mea_line15 = mea_fieldrec_line15()
+}
+
+
+
+//Recording summed MEA LFP traces using NEURON's record function
+objref mea_rec[16]
+proc run_multi(){
+
+	set_electrode()
+		
+	for pp=0,15{
+		mea_rec[pp] = new Vector()
+	}
+	mea_rec[0].record(&mea_line0)
+	mea_rec[1].record(&mea_line1)
+	mea_rec[2].record(&mea_line2)
+	mea_rec[3].record(&mea_line3)
+	mea_rec[4].record(&mea_line4)
+	mea_rec[5].record(&mea_line5)
+	mea_rec[6].record(&mea_line6)
+	mea_rec[7].record(&mea_line7)
+	mea_rec[8].record(&mea_line8)
+	mea_rec[9].record(&mea_line9)
+	mea_rec[10].record(&mea_line10)
+	mea_rec[11].record(&mea_line11)
+	mea_rec[12].record(&mea_line12)
+	mea_rec[13].record(&mea_line13)
+	mea_rec[14].record(&mea_line14)
+	mea_rec[15].record(&mea_line15)
+
+	run()
+	
+}
+
+
+
