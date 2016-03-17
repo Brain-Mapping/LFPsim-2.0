@@ -13,7 +13,7 @@ www.amrita.edu/compneuro
 README for LFPsim
 =================
 
-1. put all the three .hoc file to model directory and .mod file along with models mechanism files.
+1. put all .hoc file to model directory and .mod file along with models mechanism files.
 2. compile lfp.mod along with mod files of the model.
 3. Load the model on the NEURON
 4. Call the "extracellular_electrode.hoc" from NEURON terminal by xopen("extracellular_electrode.hoc")
