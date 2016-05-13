@@ -4,8 +4,11 @@ LFPsim works reliably on biophysically detailed multi-compartmental neurons with
 
 Last updated 12-March-2016
 Developed by : Harilal Parasuram & Shyam Diwakar
+
 Computational Neuroscience & Neurophysiology Lab, School of Biotechnology, Amrita University, India.
+
 Email: harilalp@am.amrita.edu; shyam@amrita.edu
+
 www.amrita.edu/compneuro 
 */
 
