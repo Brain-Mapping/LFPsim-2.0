@@ -43,6 +43,7 @@ h00.intercept(1)
 		xpanel("Control Panel")
 		xlabel("                                                  ===== LFPsim ===== ")
 		xlabel("LFPsim allows reconstructing LFP of multi-compartmental models of neurons and microcircuits with active ion channels")
+		xlabel("Developed by : Harilal Parasuram & Shyam Diwakar")
 		xlabel("Developed at Computational Neuroscience Lab, Amrita University, India.")
 		xpanel()
 
