@@ -14,8 +14,8 @@ ENDCOMMENT
 
 NEURON {
 	SUFFIX lfp
-	POINTER transmembrane_current, initial_part_line, initial_part_point, initial_part_rc
-	RANGE lfp_line,lfp_point,lfp_rc
+	POINTER transmembrane_current
+	RANGE lfp_line,lfp_point,lfp_rc,initial_part_point, initial_part_line, initial_part_rc
 	
 }
 

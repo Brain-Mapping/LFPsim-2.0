@@ -244,22 +244,25 @@ forall {
 		
 			setpointer transmembrane_current_m_mea(x), i_membrane(x)
 
-			setpointer initial_part_line0_mea(x), initial_part_line.x[0] 
-			setpointer initial_part_line1_mea(x), initial_part_line.x[1] 
-			setpointer initial_part_line2_mea(x), initial_part_line.x[2] 
-			setpointer initial_part_line3_mea(x), initial_part_line.x[3] 
-			setpointer initial_part_line4_mea(x), initial_part_line.x[4] 
-			setpointer initial_part_line5_mea(x), initial_part_line.x[5] 
-			setpointer initial_part_line6_mea(x), initial_part_line.x[6] 
-			setpointer initial_part_line7_mea(x), initial_part_line.x[7] 
-			setpointer initial_part_line8_mea(x), initial_part_line.x[8] 
-			setpointer initial_part_line9_mea(x), initial_part_line.x[9] 
-			setpointer initial_part_line10_mea(x), initial_part_line.x[10] 
-			setpointer initial_part_line11_mea(x), initial_part_line.x[11] 
-			setpointer initial_part_line12_mea(x), initial_part_line.x[12] 
-			setpointer initial_part_line13_mea(x), initial_part_line.x[13] 
-			setpointer initial_part_line14_mea(x), initial_part_line.x[14] 
-			setpointer initial_part_line15_mea(x), initial_part_line.x[15]
+			initial_part_line0_mea(x) = initial_part_line.x[0]
+			initial_part_line1_mea(x) = initial_part_line.x[1]
+			initial_part_line2_mea(x) = initial_part_line.x[2]
+			initial_part_line3_mea(x) = initial_part_line.x[3]
+			
+			initial_part_line4_mea(x) = initial_part_line.x[4]
+			initial_part_line5_mea(x) = initial_part_line.x[5]
+			initial_part_line6_mea(x) = initial_part_line.x[6]
+			initial_part_line7_mea(x) = initial_part_line.x[7]
+
+			initial_part_line8_mea(x) = initial_part_line.x[8]
+			initial_part_line9_mea(x) = initial_part_line.x[9]
+			initial_part_line10_mea(x) = initial_part_line.x[10]
+			initial_part_line11_mea(x) = initial_part_line.x[11]
+
+			initial_part_line12_mea(x) = initial_part_line.x[12]
+			initial_part_line13_mea(x) = initial_part_line.x[13]
+			initial_part_line14_mea(x) = initial_part_line.x[14]
+			initial_part_line15_mea(x) = initial_part_line.x[15]
 	
 							
 		}

@@ -177,14 +177,16 @@ proc re_insert_elec(){
 		rc_part1 =  exp(-1 *(time_const/RC)) * area(0.5)
 
 		for (x, 0) {
+
+
 		
 			setpointer transmembrane_current_lfp(x), i_membrane(x)
+			
+			initial_part_point_lfp(x) = point_part1
+			
+			initial_part_line_lfp(x) = line_part1
 
-			setpointer initial_part_point_lfp(x), point_part1
-
-			setpointer initial_part_line_lfp(x), line_part1
-
-			setpointer initial_part_rc_lfp(x), rc_part1
+			initial_part_rc_lfp(x) = rc_part1
 						
 				
 		}
