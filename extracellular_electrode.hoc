@@ -114,7 +114,7 @@ proc re_insert_elec(){
 					dis = (diam/2) + 0.1
 
 		}
-		point_part1 = (1 / (4 * 3.141 * dis * sigma)) * area(0.5)
+		point_part1 = (1 / (4 * 3.141 * dis * sigma)) 
 
 
 		//calculate length of the compartment
@@ -126,7 +126,7 @@ proc re_insert_elec(){
 
 		sum_dist_comp = sqrt((dist_comp_x*dist_comp_x) + (dist_comp_y*dist_comp_y) + (dist_comp_z*dist_comp_z))
 
-		//print "sum_dist_comp=",sum_dist_comp, secname(), area(0.5)
+		//print "sum_dist_comp=",sum_dist_comp, secname(), 
 
 		if(sum_dist_comp<(diam/2)){ // setting radius limit
 					sum_dist_comp = (diam/2) + 0.1
@@ -166,7 +166,7 @@ proc re_insert_elec(){
 		}
 
 
-		line_part1 = 1/(4*PI*sum_dist_comp*sigma) * phi * area(0.5)
+		line_part1 = 1/(4*PI*sum_dist_comp*sigma) * phi 
 
 
 		// RC algorithm implementation
@@ -182,11 +182,11 @@ proc re_insert_elec(){
 		
 			setpointer transmembrane_current_lfp(x), i_membrane(x)
 			
-			initial_part_point_lfp(x) = point_part1
+			initial_part_point_lfp(x) = point_part1 * area(x)
 			
-			initial_part_line_lfp(x) = line_part1
+			initial_part_line_lfp(x) = line_part1  * area(x)
 
-			initial_part_rc_lfp(x) = rc_part1
+			initial_part_rc_lfp(x) = rc_part1  * area(x)
 						
 				
 		}
