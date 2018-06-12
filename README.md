@@ -7,9 +7,8 @@ Developed by : Harilal Parasuram & Shyam Diwakar
 
 Computational Neuroscience & Neurophysiology Lab, School of Biotechnology, Amrita University, India.
 
-Email: harilalp@am.amrita.edu; shyam@amrita.edu
+Email: harilalnavami@gmail.com
 
-www.amrita.edu/compneuro 
 */
 
 
